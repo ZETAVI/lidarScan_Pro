@@ -43,7 +43,7 @@ for i in range(2, rows + 1):
 window = 8
 
 # 聚类阈值   最低数量阈值   初始化变量prev   聚类后列表
-r_max = 0.75
+r_max = 0.8
 
 num_min = window / 2 + 2
 
@@ -60,7 +60,7 @@ for i in it:  # 跳过的逻辑有问题
             prev = point_list[j]
             # r_max = 0.7
         if len(currect_point_list) >= num_min:
-            for t in range(0, window):
+            for t in range(0, window + 1):  # 需要考虑
                 try:
                     next(it)
                 except StopIteration:

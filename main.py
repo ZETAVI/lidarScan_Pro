@@ -49,7 +49,7 @@ num_min = window / 2 + 2
 
 # 多个目标聚类
 it = iter(range(0, len(point_list) - window + 1))
-for i in it:  # 跳过的逻辑有问题
+for i in it:  # 跳过的逻辑有问题！！！
     prev = point_list[i]
     currect_point_list = [point_list[i]]
     for j in range(i + 1, i + window):
@@ -60,7 +60,7 @@ for i in it:  # 跳过的逻辑有问题
             prev = point_list[j]
             # r_max = 0.7
         if len(currect_point_list) >= num_min:
-            for t in range(0, window + 1):  # 需要考虑
+            for t in range(0, window + 1):  # 需要考虑！！！
                 try:
                     next(it)
                 except StopIteration:

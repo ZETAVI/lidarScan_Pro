@@ -43,13 +43,13 @@ for i in range(2, rows + 1):
 window = 8
 
 # 聚类阈值   最低数量阈值   初始化变量prev   聚类后列表
-r_max = 0.752
+r_max = 0.75
 
-num_min = window / 2
+num_min = window / 2 + 2
 
 # 多个目标聚类
 it = iter(range(0, len(point_list) - window + 1))
-for i in it:
+for i in it:  # 跳过的逻辑有问题
     prev = point_list[i]
     currect_point_list = [point_list[i]]
     for j in range(i + 1, i + window):
@@ -59,8 +59,13 @@ for i in it:
             # 重置
             prev = point_list[j]
             # r_max = 0.7
+        if len(currect_point_list) >= num_min:
             for t in range(0, window):
-                next(it, 0)
+                try:
+                    next(it)
+                except StopIteration:
+                    # 遇到StopIteration就退出循环
+                    break
         # else:
         #     r_max = r_max + 1
     print(currect_point_list)

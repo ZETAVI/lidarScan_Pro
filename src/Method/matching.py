@@ -16,8 +16,20 @@
 __author__ = 'bobi'
 
 
+import threading
+
+
+
 class matching:
     """聚类对象拟合与特征提取"""
 
     def __init__(self, objectQueue):
+
+        # object点集
         self.objectQueue = objectQueue
+        threading.Thread(target=self.match,)
+
+    def match(self):
+        pass
+
+

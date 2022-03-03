@@ -42,6 +42,7 @@ class clustering:
             # 从队头取元素 等待时间不能错过1秒
             # print(self.dataQueue.qsize())
             if not self.dataQueue.empty():
+                # pointsPeriod：一周期数据
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
                 # for point in pointsPeriod[0]:
                 #     print(point.angle)

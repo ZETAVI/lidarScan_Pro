@@ -1,4 +1,3 @@
-
 import math
 from math import sqrt
 from excel import *
@@ -9,7 +8,6 @@ from excel import *
 
 def distance(arg1, arg2):
     return sqrt(pow(arg1[0] - arg2[0], 2) + pow(arg1[1] - arg2[1], 2))
-
 
 
 def transform(arg):
@@ -26,13 +24,11 @@ def k_judge(arg1):
     length = len(arg1)
     points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
               arg1[length - 1]]
-
     if k_calculation(transform([0]), transform([2])) < 0 and \
             k_calculation(transform([2]), transform([4])) > 0:
         return True
     else:
         return False
-
 
 
 # 获取数据
@@ -42,7 +38,6 @@ for i in range(2, rows + 1):
 
 # 滑动窗口大小
 window = 8
-
 
 # 聚类距离阈值   最低数量阈值
 r_max = 0.8

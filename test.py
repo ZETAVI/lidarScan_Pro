@@ -47,7 +47,7 @@ if __name__ == "__main__":
                 x = []
                 y = []
                 for point in scan.points:
-                    x.append(point.range * np.sin(point.angle))
+                    x.append(point.range * np.sin(point0.angle))
                     y.append(point.range * np.cos(point.angle))
                 plt.clf()
                 plt.scatter(x, y)

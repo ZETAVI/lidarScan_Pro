@@ -1,7 +1,7 @@
 from openpyxl import load_workbook
 
 # 获取表
-file_location = 'C:/Users/shmily/Desktop/data.xlsx'
+file_location = 'C:/Users/shmily/Desktop/data2.xlsx'
 excel = load_workbook(file_location)
 table = excel["Sheet1"]
 

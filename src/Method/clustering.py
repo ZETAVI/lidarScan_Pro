@@ -41,6 +41,7 @@ class clustering:
                 # for point in pointsPeriod[0]:
                 #     print(point.angle)
 
+
             # todo 具体聚类方法
             # object为元组 记录当前窗口内聚类完成的object
             # object = ()

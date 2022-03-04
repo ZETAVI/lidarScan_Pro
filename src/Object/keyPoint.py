@@ -21,6 +21,7 @@ import time
 class keyPoint:
     """特征点"""
 
+
     def __init__(self):
         self.keyPID = None
         # self.position = position
@@ -56,3 +57,4 @@ if __name__ == '__main__':
         curTime = math.floor(time.time() * 100)
         print(curTime - start)
         time.sleep(1)
+

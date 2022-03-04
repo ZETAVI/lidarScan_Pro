@@ -21,13 +21,13 @@ import time
 class keyPoint:
     """特征点"""
 
-    def __init__(self, position):
-        self.ID = None
-        self.position = position
+    def __init__(self):
+        self.keyPID = None
+        # self.position = position
         self.time = None
 
     # 为特征点生成唯一的ID
-    def generateID(self):
+    def generatePID(self):
         tim = time.time()  # 获取Python时间戳
         tim = tim * 1000  # 转Java时间戳
         tim = str(tim)
@@ -39,11 +39,20 @@ class keyPoint:
         # reqId时间戳拼接随机数
         reqId = ts + ran
         # print(reqId)
-        self.ID = reqId
+        self.keyPID = reqId
 
     # 获取时间戳
-    def getTime(self):
+    def setTime(self):
         tim = time.time() * 100  # 获取Python时间戳
-        tim = str(math.floor(tim))
+        tim = math.floor(tim)
         self.time = tim
+        return tim
 
+
+if __name__ == '__main__':
+    while 1:
+        start = keyPoint().setTime()
+        time.sleep(2)
+        curTime = math.floor(time.time() * 100)
+        print(curTime - start)
+        time.sleep(1)

@@ -30,12 +30,14 @@ class matching:
         self.keyPoints = keyPoints
         threading.Thread(target=self.match, )
 
+    # 拟合线程
     def match(self):
         while self.flag:
             if not self.objectQueue.empty():
+                pass
                 # 从objectQueue队列中去已经聚类好的object
                 # object类型为元组
-                object = self.objectQueue.get(block=True, timeout=1)
+                # object = self.objectQueue.get(block=True, timeout=1)
 
                 # todo 计算object中点集的拟合系数
 

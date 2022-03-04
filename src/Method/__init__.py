@@ -19,3 +19,5 @@ from . import clustering
 from .clustering import *
 from . import matching
 from .matching import *
+from . import locating
+from .locating import *

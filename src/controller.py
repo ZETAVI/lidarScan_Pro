@@ -32,12 +32,15 @@ class controller:
         self.objectQueue = queue.Queue(maxsize=200)
         # 关键点队列
         self.keyPoints = queue.Queue(maxsize=200)
+        # 活动人队列
+        self.activeObjs = queue.Queue(maxsize=200)
 
     # 启动线程
     def startThread(self):
         scanning(dataQueue=self.dataQueue, flag=self.flag)
         clustering(dataQueue=self.dataQueue, flag=self.flag, objectQueue=self.objectQueue)
         matching(objectQueue=self.objectQueue, flag=self.flag, keyPoints=self.keyPoints)
+        locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
 
     # 退出监听程序
     def on_press(self, key):

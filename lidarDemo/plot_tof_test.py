@@ -1,8 +1,14 @@
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
+import os
 import ydlidar
+import time
+import sys
+from matplotlib.patches import Arc
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
 
 RMAX = 32.0
+
 
 fig = plt.figure()
 fig.canvas.set_window_title('YDLidar LIDAR Monitor')
@@ -43,7 +49,7 @@ def animate(num):
             ran.append(point.range)
             intensity.append(point.intensity)
         lidar_polar.clear()
-        lidar_polar.scatter(angle, ran, c="red", cmap='hsv', alpha=0.95, s=1, marker=".")
+        lidar_polar.scatter(angle, ran, c=intensity, cmap='hsv', alpha=0.95, s=1, marker=".")
 
 
 ret = laser.initialize()
@@ -52,7 +58,6 @@ if ret:
     if ret:
         ani = animation.FuncAnimation(fig, animate, interval=5)
         plt.show()
-        plt.done()
     laser.turnOff()
 laser.disconnecting()
 plt.close()

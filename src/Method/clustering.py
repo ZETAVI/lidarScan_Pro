@@ -16,6 +16,7 @@
 __author__ = 'bobi'
 
 import threading
+import queue
 
 import src.Method.globalFunc as Fun
 

@@ -98,7 +98,6 @@ class clustering:
             # object = ()
             # 存入聚类对象集中，待后续拟合使用
             # self.objectQueue.put(item=object, block=True, timeout=1)
-            # print(czb)
         # todo 去除处理完的点
 
     # 根据初始点startPoint,动态窗口大小

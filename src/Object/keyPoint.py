@@ -21,10 +21,9 @@ import time
 class keyPoint:
     """特征点"""
 
-
     def __init__(self):
         self.keyPID = None
-        # self.position = position
+        self.position = position
         self.time = None
 
     # 为特征点生成唯一的ID
@@ -49,12 +48,15 @@ class keyPoint:
         self.time = tim
         return tim
 
+    # 更新点信息
+    def update(self, newState):
+        self.time = newState.time
+        self.position = newState.position
 
-if __name__ == '__main__':
-    while 1:
-        start = keyPoint().setTime()
-        time.sleep(2)
-        curTime = math.floor(time.time() * 100)
-        print(curTime - start)
-        time.sleep(1)
-
+# if __name__ == '__main__':
+#     while 1:
+#         start = keyPoint().setTime()
+#         time.sleep(2)
+#         curTime = math.floor(time.time() * 100)
+#         print(curTime - start)
+#         time.sleep(1)

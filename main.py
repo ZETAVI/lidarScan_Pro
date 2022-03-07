@@ -1,3 +1,4 @@
+
 import math
 from math import sqrt
 from excel import *
@@ -8,6 +9,7 @@ from excel import *
 
 def distance(arg1, arg2):
     return sqrt(pow(arg1[0] - arg2[0], 2) + pow(arg1[1] - arg2[1], 2))
+
 
 
 def transform(arg):
@@ -24,11 +26,13 @@ def k_judge(arg1):
     length = len(arg1)
     points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
               arg1[length - 1]]
+
     if k_calculation(transform([0]), transform([2])) < 0 and \
             k_calculation(transform([2]), transform([4])) > 0:
         return True
     else:
         return False
+
 
 
 # 获取数据
@@ -38,6 +42,7 @@ for i in range(2, rows + 1):
 
 # 滑动窗口大小
 window = 8
+
 
 # 聚类距离阈值   最低数量阈值
 r_max = 0.8
@@ -65,3 +70,33 @@ while i < len(point_list) - window + 1:
             i += 1
     else:
         i += 1
+'''    
+# 单个目标聚类
+prev = point_list[0]
+currect_point_list = [point_list[0]]
+
+# 确定处理第一个点就是误差的的情况???
+
+
+# 聚类
+for j in range(1, len(point_list)):
+    dis = distance(prev, point_list[j])
+    if dis <= r_max:
+        currect_point_list.append(point_list[j])
+        # 重置
+        prev = point_list[j]
+        r_max = 5.5
+    else:
+        r_max = r_max + 0.5
+# 是否满足最低点数
+if len(currect_point_list) < num_min:
+    print("点数排除")
+else:
+    # 判断五点斜率是否满足
+    if k_judge(currect_point_list):
+        print(currect_point_list)
+        print('\n')
+    else:
+        print("斜率排除")
+'''
+

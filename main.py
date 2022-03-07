@@ -11,12 +11,18 @@ def distance(arg1, arg2):
 
 
 def transform(arg):
-    return (arg[1] * math.cos(arg[0]), arg[1] * math.sin(arg[0]))
+    return arg[1] * math.cos(arg[0]), arg[1] * math.sin(arg[0])
+
+
+# print(transform((3 * math.pi / 2, 10)))
 
 
 # 求斜率
 def k_calculation(arg1, arg2):
-    return (arg1[1] - arg2[1]) / (arg1[0] - arg2[0])
+    if arg1[0] - arg2[0] == 0:
+        return 0
+    else:
+        return (arg1[1] - arg2[1]) / (arg1[0] - arg2[0])
 
 
 # 斜率规则判断函数
@@ -24,8 +30,8 @@ def k_judge(arg1):
     length = len(arg1)
     points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
               arg1[length - 1]]
-    if k_calculation(transform([0]), transform([2])) < 0 and \
-            k_calculation(transform([2]), transform([4])) > 0:
+    if k_calculation(transform(points[0]), transform(points[2])) < 0 and \
+            k_calculation(transform(points[2]), transform(points[4])) > 0:
         return True
     else:
         return False

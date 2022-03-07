@@ -30,6 +30,8 @@ if __name__ == "__main__":
             if r:
                 # print("Scan received[",scan.stamp,"]:",scan.points.size(),"ranges is [",1.0/scan.config.scan_time,"]Hz");
                 print(scan.points[1].angle)
+                for point in scan.points:
+                    print(point.intensity)
             else :
                 print("Failed to get Lidar Data")
             time.sleep(0.05);

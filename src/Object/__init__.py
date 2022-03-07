@@ -15,3 +15,5 @@ __author__ = 'bobi'
 
 from . import keyPoint
 from .keyPoint import *
+from . import activeObj
+from .activeObj import *

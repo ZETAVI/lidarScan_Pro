@@ -27,13 +27,15 @@ import queue
 import threading
 import time
 
+from src.Object import keyPoint, activeObj
+
 
 class locate_storage:
     """特征点定位与活动人存储"""
 
     def __init__(self, keyPoints, flag, activeObjs):
         keyPoints = queue.Queue
-        # 关键点集合
+        # 关键点集合(待处理)
         self.keyPoints = keyPoints
         self.flag = flag
         # 活动人对象集合
@@ -64,9 +66,13 @@ class locate_storage:
                     if curTime - point.time > self.timeout:
                         pass
 
+                # 标记是否能在跟踪表中找到对应点
+                alreadyProcess = False
+
                 # todo 在跟踪表中利用最邻近法定位
                 for point in self.trackList:
                     if self.distance(point, keyPoint) <= self.neighbour:
+                        alreadyProcess = True
                         # 定位到上个周期的对应点
                         # 判断这个点是否能构成活动人对象,即是否能在字典中找到该点ID对应的活动人ID
                         keyPoint.keyPID = point.keyPID
@@ -74,15 +80,39 @@ class locate_storage:
                             # todo 加入该活动人对应位置,并自动更新活动人的有效时间
                             activeObj = self.point2obj[keyPoint.keyPID]
                             activeObj.addANDUpdateTrack(keyPoint=keyPoint)
+
+                            # 更新跟踪表
+                            point.update(keyPoint)
                             pass
-                    else:
-                        # todo 新出现的点
 
-                        pass
+                        # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
+                        else:
+                            # 更新跟踪表
+                            point.update(keyPoint)
+                            # 申请存储
+                            self.store(keyPoint)
 
-    # todo 存储线程 利用等待空间
-    def store(self):
-        pass
+                # 若在跟踪标表中找不到对应点
+                if not alreadyProcess:
+                    # 生成一个唯一的编号
+                    keyPoint.generatePID()
+                    # 更新跟踪表
+                    self.trackList.append(keyPoint)
+                    # 申请存储该特征点
+                    self.store(keyPoint)
+
+    # todo 申请存储方法 利用等待空间
+    def store(self, curPoint):
+        # 若等待空间为空 申请一个等待空间存放当前点
+        if self.waitArea is None:
+            self.waitArea = waitingArea(curPoint)
+        else:
+            # 若等待空间非空 则检测两点是否超时  超时返回空 否则返回活动人对象
+            activeObj = self.waitArea.checkTimeOut(curPoint)
+            if activeObj is not None:
+                # 更新两特征点与活动人对应的字典
+                self.point2obj[activeObj.legs[0].keyPID] = activeObj.activeID
+                self.point2obj[activeObj.legs[1].keyPID] = activeObj.activeID
 
     # todo 计算两点的欧拉公式
     def distance(self, pointA, pointB):
@@ -99,9 +129,22 @@ class waitingArea:
         self.waitPoint = waitPoint
         # 记录等待开始时间
         self.waitTime = self.setTime()
+        # 最大的等待时间
+        self.timeout = 1
 
     # 获取时间戳
     def setTime(self):
         tim = time.time() * 100  # 获取Python时间戳
         tim = math.floor(tim)
         return tim
+
+    # 检测新的点是否能与等待空间中的点组成活动人
+    def checkTimeOut(self, newPoint):
+        # 若无超时 则两个特征点能构成一个活动人 构造活动人 返回新的活动人对象
+        if newPoint.time - self.waitTime <= self.timeout:
+            return activeObj(legs=(self.waitPoint, newPoint))
+        else:
+            # 若已超时 更新等待空间
+            self.waitPoint = newPoint
+            self.waitPoint = self.setTime()
+            return None

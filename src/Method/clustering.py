@@ -33,14 +33,20 @@ class clustering:
         self.objectQueue = objectQueue
         self.flag = flag
         # 启动线程
-        threading.Thread(target=self.startClustering, ).start()
+        threading.Thread(target=self.cluster, ).start()
         print("hello")
 
     # 启动聚类处理线程
-    def startClustering(self):
+    def cluster(self):
         while self.flag[0]:
             # 从队头取元素 等待时间不能错过1秒
             # print(self.dataQueue.qsize())
+            if not self.dataQueue.empty():
+                pointsPeriod = self.dataQueue.get(block=True, timeout=1)
+                # for point in pointsPeriod[0]:
+                #     print(point.angle)
+
+
 
             # pointsPeriod：一周期数据
             pointsPeriod = self.dataQueue.get(block=True, timeout=1)

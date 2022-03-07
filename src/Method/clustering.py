@@ -17,6 +17,10 @@ __author__ = 'bobi'
 
 import threading
 from math import sqrt
+
+import matplotlib
+from matplotlib import pyplot as plt, animation
+
 from excel import *
 import queue
 
@@ -32,12 +36,37 @@ class clustering:
         self.dataQueue = dataQueue
         self.objectQueue = objectQueue
         self.flag = flag
+        self.RMAX = 0
+        self.fig = 0
+        self.lidar_polar = 0
+        self.currect_point_list = []
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
         print("hello")
 
+    # 画图函数
+    def animate(self):
+        angle = []
+        ran = []
+        intensity = []
+        for point in self.currect_point_list:
+            angle.append(point[0])
+            ran.append(point[1])
+            intensity.append(0)
+        self.lidar_polar.clear()
+        self.lidar_polar.scatter(angle, ran, c=intensity, cmap='hsv', alpha=0.95, marker='.', s=3)
+
     # 启动聚类处理线程
     def cluster(self):
+        # 初始化画布
+        self.RMAX = 32.0
+        self.fig = plt.figure()
+        self.fig.canvas.set_window_title('YDLidar LIDAR Monitor')
+        self.lidar_polar = plt.subplot(polar=True)
+        self.lidar_polar.autoscale_view(True, True, True)
+        self.lidar_polar.set_rmax(self.RMAX)
+        self.lidar_polar.grid(True)
+
         while self.flag[0]:
             # 从队头取元素 等待时间不能错过1秒
             # print(self.dataQueue.qsize())
@@ -67,29 +96,31 @@ class clustering:
             i = 0
             while i < pointsPeriod[0].size() - window + 1:
                 prev = pointsPeriod[0][i]
-                currect_point_list = [pointsPeriod[0][i]]
+                self.currect_point_list = [pointsPeriod[0][i]]
                 for j in range(i + 1, i + window):
                     dis = fun(prev, pointsPeriod[0][j])
                     if dis <= r_max:
-                        currect_point_list.append(pointsPeriod[0][j])
+                        self.currect_point_list.append(pointsPeriod[0][j])
                         # 重置
                         prev = pointsPeriod[0][j]
                         r_max = 0.8
                     else:
                         # 跨越点阈值增加
                         r_max += 0.02
-                # currect_point_list：存有一堆数据点的迭代器对象
-                # if len(currect_point_list) >= num_min and k_judge(currect_point_list):
-                if len(currect_point_list) >= num_min:
-                    # print(currect_point_list.angle," ",currect_point_list.range)
+                # self.currect_point_list：存有一堆数据点的迭代器对象
+                # if len(self.currect_point_list) >= num_min and k_judge(self.currect_point_list):
+                if len(self.currect_point_list) >= num_min:
+                    # print(self.currect_point_list.angle," ",self.currect_point_list.range)
                     czb = []
-                    for t in currect_point_list:
+                    for t in self.currect_point_list:
                         czb.append((t.angle, t.range))
+                    # print(czb)
                     if k_judge(czb):
                         print(czb)
+                        print(self.RMAX)
                     else:
                         print("斜率排除")
-                    for t in range(0, len(currect_point_list)):
+                    for t in range(0, len(self.currect_point_list)):
                         i += 1
                 else:
                     print("数目排除")
@@ -100,7 +131,13 @@ class clustering:
             # 存入聚类对象集中，待后续拟合使用
             # self.objectQueue.put(item=object, block=True, timeout=1)
 
-            # todo 去除处理完的点
+        # 动态绘制
+        if self.currect_point_list:
+            ani = animation.FuncAnimation(self.fig, self.animate, interval=25)
+            self.plt.show()
+            self.plt.done()
+        plt.close()
+        # todo 去除处理完的点
 
     # 根据初始点startPoint,动态窗口大小
     def dynamicRegulation(self, startPoint):

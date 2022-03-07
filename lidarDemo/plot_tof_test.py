@@ -1,11 +1,6 @@
-import os
-import ydlidar
-import time
-import sys
-from matplotlib.patches import Arc
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import numpy as np
+import matplotlib.pyplot as plt
+import ydlidar
 
 RMAX = 32.0
 
@@ -21,19 +16,19 @@ lidar_polar.set_rmax(RMAX)
 # lidar_polar.grid(True)
 lidar_polar.grid(linestyle="--", color="black")
 
-ports = ydlidar.lidarPortList();
-port = "/dev/ydlidar";
+ports = ydlidar.lidarPortList()
+port = "/dev/ydlidar"
 for key, value in ports.items():
-    port = value;
+    port = value
 
-laser = ydlidar.CYdLidar();
-laser.setlidaropt(ydlidar.LidarPropSerialPort, port);
+laser = ydlidar.CYdLidar()
+laser.setlidaropt(ydlidar.LidarPropSerialPort, port)
 laser.setlidaropt(ydlidar.LidarPropSerialBaudrate, 115200)
-laser.setlidaropt(ydlidar.LidarPropLidarType, ydlidar.TYPE_TRIANGLE);
-laser.setlidaropt(ydlidar.LidarPropDeviceType, ydlidar.YDLIDAR_TYPE_SERIAL);
-laser.setlidaropt(ydlidar.LidarPropScanFrequency, 10.0);
-laser.setlidaropt(ydlidar.LidarPropSampleRate, 3);
-laser.setlidaropt(ydlidar.LidarPropSingleChannel, True);
+laser.setlidaropt(ydlidar.LidarPropLidarType, ydlidar.TYPE_TRIANGLE)
+laser.setlidaropt(ydlidar.LidarPropDeviceType, ydlidar.YDLIDAR_TYPE_SERIAL)
+laser.setlidaropt(ydlidar.LidarPropScanFrequency, 10.0)
+laser.setlidaropt(ydlidar.LidarPropSampleRate, 3)
+laser.setlidaropt(ydlidar.LidarPropSingleChannel, True)
 scan = ydlidar.LaserScan()
 
 
@@ -51,13 +46,13 @@ def animate(num):
         lidar_polar.scatter(angle, ran, c="red", cmap='hsv', alpha=0.95, s=1, marker=".")
 
 
-ret = laser.initialize();
+ret = laser.initialize()
 if ret:
-    ret = laser.turnOn();
+    ret = laser.turnOn()
     if ret:
         ani = animation.FuncAnimation(fig, animate, interval=5)
         plt.show()
         plt.done()
-    laser.turnOff();
+    laser.turnOff()
 laser.disconnecting()
-plt.close();
+plt.close()

@@ -14,18 +14,11 @@
 -------------------------------------------------
 """
 __author__ = 'bobi'
-
 import threading
-from math import sqrt
 
-import matplotlib
-from matplotlib import pyplot as plt, animation
+from matplotlib import pyplot as plt
 
-from excel import *
-import queue
-
-from function import fun
-from main import k_calculation, k_judge, distance
+from function import fun, k_judge
 
 
 class clustering:
@@ -73,17 +66,9 @@ class clustering:
             if not self.dataQueue.empty():
                 # pointsPeriod：一周期数据
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
-                # for point in pointsPeriod[0]:
-                #     print(point.angle)
 
-
-
-            # pointsPeriod：一周期数据
             pointsPeriod = self.dataQueue.get(block=True, timeout=1)
-            # for point in pointsPeriod[0]:
-            #     print(point.angle)
             # todo 具体聚类方法
-
             # 滑动窗口大小
             window = 8
 
@@ -114,10 +99,8 @@ class clustering:
                     czb = []
                     for t in self.currect_point_list:
                         czb.append((t.angle, t.range))
-                    # print(czb)
                     if k_judge(czb):
                         print(czb)
-                        print(self.RMAX)
                     else:
                         print("斜率排除")
                     for t in range(0, len(self.currect_point_list)):
@@ -132,11 +115,11 @@ class clustering:
             # self.objectQueue.put(item=object, block=True, timeout=1)
 
         # 动态绘制
-        if self.currect_point_list:
-            ani = animation.FuncAnimation(self.fig, self.animate, interval=25)
-            self.plt.show()
-            self.plt.done()
-        plt.close()
+        # if self.currect_point_list:
+        #     ani = animation.FuncAnimation(self.fig, self.animate, interval=25)
+        #     self.plt.show()
+        #     self.plt.done()
+        # plt.close()
         # todo 去除处理完的点
 
     # 根据初始点startPoint,动态窗口大小

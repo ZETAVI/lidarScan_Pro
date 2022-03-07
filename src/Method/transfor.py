@@ -17,6 +17,8 @@
 -------------------------------------------------
 """
 import math
+
+
 def transform(angle, distance):
     """
     将以聚类的数据点进行坐标平移与坐标转换
@@ -25,14 +27,14 @@ def transform(angle, distance):
     角度和距离一一队以ing
     :
     """
-    #距离最近的点的标号
+    # 距离最近的点的标号
     middle_index = distance.index(min(distance))
-    #旋转
+    # 旋转
     t_angle = [angle[i] - angle[middle_index] + 90 for i in range(len(angle))]
-    #极坐标转为笛卡尔坐标
+    # 极坐标转为笛卡尔坐标
     x = [math.cos(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
     y = [math.sin(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
-    #向下平移
+    # 向下平移
     y2 = [y[i] - y[middle_index] for i in range(len(y))]
 
-    return (x,y2)
+    return (x, y2)

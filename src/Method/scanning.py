@@ -65,11 +65,14 @@ class scanning:
                     #       1.0 / scan.config.scan_time, "]Hz")
 
                     # 将一个周期内的点集数据存入data
+                    # print(self.dataQueue.qsize())
+                    # for point in scan.points:
+                    #     print(point.angle)
                     self.dataQueue.put(item=(scan.points,), block=True, timeout=1)
                 else:
                     print("Failed to get Lidar Data")
-
                 if self.dataQueue.qsize() < self.MaxL * 3 / 4:
+                    pass
                     time.sleep(0.05)
                 else:
                     print("Too many points in List")

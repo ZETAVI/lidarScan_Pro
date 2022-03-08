@@ -14,11 +14,10 @@
 -------------------------------------------------
 """
 __author__ = 'bobi'
+
 import threading
 
-from matplotlib import pyplot as plt
-
-from function import fun, k_judge
+import src.Method.globalFunc as Fun
 
 
 class clustering:
@@ -29,37 +28,15 @@ class clustering:
         self.dataQueue = dataQueue
         self.objectQueue = objectQueue
         self.flag = flag
-        self.RMAX = 0
-        self.fig = 0
-        self.lidar_polar = 0
-        self.currect_point_list = []
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
         print("hello")
 
-    # 画图函数
-    def animate(self):
-        angle = []
-        ran = []
-        intensity = []
-        for point in self.currect_point_list:
-            angle.append(point[0])
-            ran.append(point[1])
-            intensity.append(0)
-        self.lidar_polar.clear()
-        self.lidar_polar.scatter(angle, ran, c=intensity, cmap='hsv', alpha=0.95, marker='.', s=3)
 
     # 启动聚类处理线程
     def cluster(self):
-        # 初始化画布
-        self.RMAX = 32.0
-        self.fig = plt.figure()
-        self.fig.canvas.set_window_title('YDLidar LIDAR Monitor')
-        self.lidar_polar = plt.subplot(polar=True)
-        self.lidar_polar.autoscale_view(True, True, True)
-        self.lidar_polar.set_rmax(self.RMAX)
-        self.lidar_polar.grid(True)
 
+        pointsPeriod = None
         while self.flag[0]:
             # 从队头取元素 等待时间不能错过1秒
             # print(self.dataQueue.qsize())
@@ -67,25 +44,29 @@ class clustering:
                 # pointsPeriod：一周期数据
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
 
-            pointsPeriod = self.dataQueue.get(block=True, timeout=1)
+            if pointsPeriod is None:
+                continue
             # todo 具体聚类方法
+
             # 滑动窗口大小
             window = 8
 
             # 聚类距离阈值   最低数量阈值
+            # todo
             r_max = 0.8
 
             num_min = 5
 
             # 多个目标聚类
             i = 0
+            czb = []
             while i < pointsPeriod[0].size() - window + 1:
                 prev = pointsPeriod[0][i]
-                self.currect_point_list = [pointsPeriod[0][i]]
+                currect_point_list = [pointsPeriod[0][i]]
                 for j in range(i + 1, i + window):
-                    dis = fun(prev, pointsPeriod[0][j])
+                    dis = Fun.distance(prev, pointsPeriod[0][j])
                     if dis <= r_max:
-                        self.currect_point_list.append(pointsPeriod[0][j])
+                        currect_point_list.append(pointsPeriod[0][j])
                         # 重置
                         prev = pointsPeriod[0][j]
                         r_max = 0.8
@@ -94,32 +75,29 @@ class clustering:
                         r_max += 0.02
                 # self.currect_point_list：存有一堆数据点的迭代器对象
                 # if len(self.currect_point_list) >= num_min and k_judge(self.currect_point_list):
-                if len(self.currect_point_list) >= num_min:
+                if len(currect_point_list) >= num_min:
                     # print(self.currect_point_list.angle," ",self.currect_point_list.range)
-                    czb = []
-                    for t in self.currect_point_list:
-                        czb.append((t.angle, t.range))
-                    if k_judge(czb):
-                        print(czb)
+                    # for t in currect_point_list:
+                    #     czb.append((t.angle, t.range))
+                    if Fun.k_judge(currect_point_list):
+                        # print(czb)
+                        czb.append(currect_point_list)
+                        # self.objectQueue.put(item=czb, block=True, timeout=1)
+                        # print(self.objectQueue.qsize())
                     else:
-                        print("斜率排除")
-                    for t in range(0, len(self.currect_point_list)):
-                        i += 1
+                        pass
+                        # print("斜率排除")
+                    # 跨越
+                    i += len(currect_point_list)
                 else:
-                    print("数目排除")
+                    # print("数目排除")
                     i += 1
-
+            self.objectQueue.put(item=czb, block=True, timeout=1)
             # object为元组 记录当前窗口内聚类完成的object
             # object = ()
             # 存入聚类对象集中，待后续拟合使用
             # self.objectQueue.put(item=object, block=True, timeout=1)
-
-        # 动态绘制
-        # if self.currect_point_list:
-        #     ani = animation.FuncAnimation(self.fig, self.animate, interval=25)
-        #     self.plt.show()
-        #     self.plt.done()
-        # plt.close()
+            # print(czb)
         # todo 去除处理完的点
 
     # 根据初始点startPoint,动态窗口大小

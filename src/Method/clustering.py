@@ -16,12 +16,8 @@
 __author__ = 'bobi'
 
 import threading
-from math import sqrt
-from excel import *
-import queue
 
-from function import fun
-from main import k_calculation, k_judge, distance
+import src.Method.globalFunc as Fun
 
 
 class clustering:
@@ -36,39 +32,39 @@ class clustering:
         threading.Thread(target=self.cluster, ).start()
         print("hello")
 
+
     # 启动聚类处理线程
     def cluster(self):
+
+        pointsPeriod = None
         while self.flag[0]:
             # 从队头取元素 等待时间不能错过1秒
             # print(self.dataQueue.qsize())
             if not self.dataQueue.empty():
+                # pointsPeriod：一周期数据
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
-                # for point in pointsPeriod[0]:
-                #     print(point.angle)
 
-
-
-            # pointsPeriod：一周期数据
-            pointsPeriod = self.dataQueue.get(block=True, timeout=1)
-            # for point in pointsPeriod[0]:
-            #     print(point.angle)
+            if pointsPeriod is None:
+                continue
             # todo 具体聚类方法
 
             # 滑动窗口大小
             window = 8
 
             # 聚类距离阈值   最低数量阈值
+            # todo
             r_max = 0.8
 
             num_min = 5
 
             # 多个目标聚类
             i = 0
+            czb = []
             while i < pointsPeriod[0].size() - window + 1:
                 prev = pointsPeriod[0][i]
                 currect_point_list = [pointsPeriod[0][i]]
                 for j in range(i + 1, i + window):
-                    dis = fun(prev, pointsPeriod[0][j])
+                    dis = Fun.distance(prev, pointsPeriod[0][j])
                     if dis <= r_max:
                         currect_point_list.append(pointsPeriod[0][j])
                         # 重置
@@ -77,29 +73,32 @@ class clustering:
                     else:
                         # 跨越点阈值增加
                         r_max += 0.02
-                # currect_point_list：存有一堆数据点的迭代器对象
-                # if len(currect_point_list) >= num_min and k_judge(currect_point_list):
+                # self.currect_point_list：存有一堆数据点的迭代器对象
+                # if len(self.currect_point_list) >= num_min and k_judge(self.currect_point_list):
                 if len(currect_point_list) >= num_min:
-                    # print(currect_point_list.angle," ",currect_point_list.range)
-                    czb = []
-                    for t in currect_point_list:
-                        czb.append((t.angle, t.range))
-                    if k_judge(czb):
-                        print(czb)
+                    # print(self.currect_point_list.angle," ",self.currect_point_list.range)
+                    # for t in currect_point_list:
+                    #     czb.append((t.angle, t.range))
+                    if Fun.k_judge(currect_point_list):
+                        # print(czb)
+                        czb.append(currect_point_list)
+                        # self.objectQueue.put(item=czb, block=True, timeout=1)
+                        # print(self.objectQueue.qsize())
                     else:
-                        print("斜率排除")
-                    for t in range(0, len(currect_point_list)):
-                        i += 1
+                        pass
+                        # print("斜率排除")
+                    # 跨越
+                    i += len(currect_point_list)
                 else:
-                    print("数目排除")
+                    # print("数目排除")
                     i += 1
-
+            self.objectQueue.put(item=czb, block=True, timeout=1)
             # object为元组 记录当前窗口内聚类完成的object
             # object = ()
             # 存入聚类对象集中，待后续拟合使用
             # self.objectQueue.put(item=object, block=True, timeout=1)
-
-            # todo 去除处理完的点
+            # print(czb)
+        # todo 去除处理完的点
 
     # 根据初始点startPoint,动态窗口大小
     def dynamicRegulation(self, startPoint):

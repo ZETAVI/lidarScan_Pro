@@ -71,14 +71,14 @@ class clustering:
             idx = 0
             czb = []
             while idx < len(pendingList) - window + 1:
-                prev = pointsPeriod[0][idx]
-                correct_point_list = [pointsPeriod[0][idx]]
+                prev = pendingList[idx]
+                correct_point_list = [pendingList[idx]]
                 for j in range(idx + 1, idx + window):
-                    dis = Fun.distance(prev, pointsPeriod[0][j])
+                    dis = Fun.distance(prev, pendingList[j])
                     if dis <= r_max:
-                        correct_point_list.append(pointsPeriod[0][j])
+                        correct_point_list.append(pendingList[j])
                         # 重置
-                        prev = pointsPeriod[0][j]
+                        prev = pendingList[j]
                         r_max = 0.8
                     else:
                         # 跨越点阈值增加
@@ -96,9 +96,9 @@ class clustering:
                     # 聚类指针右移已聚类成功的长度
                     idx += len(correct_point_list)
                 else:
-                    print("数目排除")
+                    # print("数目排除")
                     idx += 1
-
+            self.objectQueue.put(item=czb, block=True, timeout=1)
             # object为元组 记录当前窗口内聚类完成的object
             # object = ()
             # 存入聚类对象集中，待后续拟合使用

@@ -33,7 +33,7 @@ scan = ydlidar.LaserScan()
 
 
 def animate(num):
-    r = laser.doProcessSimple(scan);
+    r = laser.doProcessSimple(scan)
     if r:
         angle = []
         ran = []

@@ -14,17 +14,17 @@ import math
 import numpy as np
 
 
-def judege(x, y):
+def transform(x, y):
     tag = False
     # 运用扫描窗口内边界点和原点的夹角角度初步排除
     n = len(x)
     if x[0] != 0 and x[n - 1] != 0:
-        x1 = x[0]
-        y1 = y[0]
+        x1 = x(0)
+        y1 = y(0)
         x2 = 0
         y2 = 0
-        x3 = x[n - 1]
-        y3 = y[n - 1]
+        x3 = x(n - 1)
+        y3 = y(n - 1)
         a2 = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
         b2 = (x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2)
         c2 = (x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3)
@@ -34,9 +34,8 @@ def judege(x, y):
         pos = (a2 + b2 - c2) / (2 * a * b)  # 求出余弦值
         angle = math.acos(pos)  # 余弦值装换为弧度值
         realangle = math.degrees(angle)  # 弧度值转换为角度值
-        if realangle < 145 or realangle > 95:
-            tag = True
-    '''
+        if realangle > 150 or realangle < 95:
+            return tag
     # 添加即时对数据进行拟合并通过拟合得到的二次函数参数进行初步排除
     z1 = np.polyfit(x, y, 2)  # 用2次多项式拟合，可改变多项式阶数；
     p1 = np.poly1d(z1)  # 得到多项式系数，按照阶数从高到低排列
@@ -53,6 +52,5 @@ def judege(x, y):
     res = sum / n
     if(res < 2.5*10**-5):
         tag = True
-    '''
     return tag
 

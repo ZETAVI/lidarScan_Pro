@@ -17,3 +17,5 @@ from . import keyPoint
 from .keyPoint import *
 from . import activeObj
 from .activeObj import *
+from . import myWidget
+from .myWidget import *

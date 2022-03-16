@@ -86,6 +86,7 @@ class clustering:
                         # 重置
                         prev = pendingList[j]
                         r_max = t
+
                     else:
                         # 跨越点阈值增加
                         r_max += r_add

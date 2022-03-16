@@ -14,14 +14,10 @@
 """
 __author__ = 'bobi'
 
-import queue
-
-from matplotlib import animation, pyplot as plt
-
 from src.Method import *
 
 
-class controller:
+class controller():
 
     def __init__(self):
         self.flag = [True]
@@ -41,6 +37,7 @@ class controller:
         clustering(dataQueue=self.dataQueue, flag=self.flag, objectQueue=self.objectQueue)
         # matching(objectQueue=self.objectQueue, flag=self.flag, keyPoints=self.keyPoints)
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
+        print("进程启动成功！")
 
     # 退出监听程序
     def on_press(self, key):
@@ -52,27 +49,7 @@ class controller:
         except AttributeError:
             print('special key {0} pressed '.format(
                 key))
-
         # 通过属性判断按键类型。
-
-
-# 画图函数
-def animate(num):
-    global color
-    angle = []
-    ran = []
-    colors = []
-    if not controller.objectQueue.empty():
-        for cycle in controller.objectQueue.get(block=True, timeout=1):
-            for point in cycle:
-                angle.append(point.angle)
-                ran.append(point.range)
-                colors.append(color)
-            color += 5
-    else:
-        time.sleep(0.5)
-    lidar_polar.clear()
-    lidar_polar.scatter(angle, ran, c=colors, cmap='hsv', alpha=0.95, marker='.', s=3)
 
 
 if __name__ == '__main__':
@@ -80,21 +57,6 @@ if __name__ == '__main__':
     controller = controller()
     controller.startThread()
 
-    # 顏色
-    color = 1
-    # 初始化画布
-
-    RMAX = 32.0
-    fig = plt.figure()
-    fig.canvas.set_window_title('YDLidar LIDAR Monitor')
-    lidar_polar = plt.subplot(polar=True)
-    lidar_polar.autoscale_view(scalex=False, scaley=False)
-    lidar_polar.set_rmax(RMAX)
-    lidar_polar.grid(True)
-    ani = animation.FuncAnimation(fig, animate, interval=25)
-    plt.show()
-    plt.close()
-    # print(controller.objectQueue.get(block=True, timeout=1))
 
     # # Collect events until released
     # with keyboard.Listener(

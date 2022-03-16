@@ -41,6 +41,7 @@ class MyWidget(pg.GraphicsWindow):
     def setData(self, x, y):
         self.plotDataItem.setData(x, y)
 
+    # todo dataQueue改为objectQueue
     def onNewData(self):
         if not self.dataQueue.empty():
             angle = []

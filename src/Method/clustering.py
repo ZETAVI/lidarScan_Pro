@@ -104,7 +104,6 @@ class clustering:
                 if stop == 1:
                     break
             self.objectQueue.put(item=final, block=True, timeout=1)
-
             # 当一个聚类周期处理结束后  去除处理完的点(切片)
             pendingList = pendingList[idx:]
 

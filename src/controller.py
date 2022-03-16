@@ -15,6 +15,7 @@
 __author__ = 'bobi'
 
 from src.Method import *
+from src.Object import *
 
 
 class controller():
@@ -34,7 +35,8 @@ class controller():
     # todo  warning:启动线程 一个个线程打开 因为后续线程依赖前面线程的数据 所以需要前面的线程得到验证后再打开下一步线程
     def startThread(self):
         scanning(dataQueue=self.dataQueue, flag=self.flag)
-        clustering(dataQueue=self.dataQueue, flag=self.flag, objectQueue=self.objectQueue)
+        MyQtWidgets(dataQueue=self.dataQueue).start()
+        # clustering(dataQueue=self.dataQueue, flag=self.flag, objectQueue=self.objectQueue)
         # matching(objectQueue=self.objectQueue, flag=self.flag, keyPoints=self.keyPoints)
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
         print("进程启动成功！")

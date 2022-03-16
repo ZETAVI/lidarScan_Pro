@@ -15,10 +15,11 @@
 __author__ = 'bobi'
 
 import threading
-
+from PyQt5 import QtCore, QtWidgets
+import pyqtgraph as pg
 import ydlidar
-
 import time
+import src.Object as Obj
 
 
 class scanning:
@@ -68,6 +69,7 @@ class scanning:
                     # print(self.dataQueue.qsize())
                     # for point in scan.points:
                     #     print(point.angle)
+                    print(self.dataQueue.qsize())
                     self.dataQueue.put(item=(scan.points,), block=True, timeout=1)
                 else:
                     print("Failed to get Lidar Data")

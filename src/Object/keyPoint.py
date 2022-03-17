@@ -21,7 +21,7 @@ import time
 class keyPoint:
     """特征点"""
 
-    def __init__(self):
+    def __init__(self, position):
         self.keyPID = None
         self.position = position
         self.time = None

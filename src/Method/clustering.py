@@ -45,6 +45,7 @@ class clustering:
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
             # 有可能去除失败
             if pointsPeriod is None:
+                time.sleep(0.1)
                 continue
             else:
                 # 将取到的元组按元素点添加到待处理链表空间中

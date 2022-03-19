@@ -14,6 +14,8 @@
 """
 __author__ = 'bobi'
 
+import queue
+
 from src.Method import *
 from src.Object import *
 
@@ -22,11 +24,15 @@ class controller():
 
     def __init__(self):
         self.flag = [True]
-        self.MaxL = 99999999999
-        # 雷达扫描数据队列
-        self.dataQueue = queue.Queue(maxsize=self.MaxL)
+
+        # 雷达扫描数据待处理队列
+        self.dataQueue = queue.Queue(maxsize=500)
+        # 雷达数据显示队列
+        self.showDataQueue = queue.Queue(maxsize=200)
         # 对象聚类队列
         self.objectQueue = queue.Queue(maxsize=200)
+        # 对象聚类显示队列
+        self.showObjQueue = queue.Queue(maxsize=200)
         # 关键点队列
         self.keyPoints = queue.Queue(maxsize=200)
         # 活动人队列
@@ -34,9 +40,9 @@ class controller():
 
     # todo  warning:启动线程 一个个线程打开 因为后续线程依赖前面线程的数据 所以需要前面的线程得到验证后再打开下一步线程
     def startThread(self):
-        scanning(dataQueue=self.dataQueue, flag=self.flag)
-        MyQtWidgets(dataQueue=self.dataQueue).start()
-        # clustering(dataQueue=self.dataQueue, flag=self.flag, objectQueue=self.objectQueue)
+        scanning(dataQueue=self.dataQueue, showDataQueue=self.showDataQueue, flag=self.flag)
+        clustering(dataQueue=self.dataQueue, objectQueue=self.objectQueue, showObjQueue=self.showObjQueue)
+        MyQtWidgets(self.showDataQueue, self.showObjQueue).start()
         # matching(objectQueue=self.objectQueue, flag=self.flag, keyPoints=self.keyPoints)
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
         print("进程启动成功！")
@@ -58,7 +64,6 @@ if __name__ == '__main__':
     # 控制台
     controller = controller()
     controller.startThread()
-
 
     # # Collect events until released
     # with keyboard.Listener(

@@ -26,9 +26,10 @@ class scanning:
     """雷达数据扫描"""
     laser = None
 
-    def __init__(self, dataQueue, flag):
+    def __init__(self, dataQueue, showDataQueue, flag):
         self.MaxL = dataQueue.maxsize
         self.dataQueue = dataQueue
+        self.showDataQueue = showDataQueue
         self.flag = flag
         scanThread = threading.Thread(target=self.scan, )
         # 启动线程
@@ -58,7 +59,7 @@ class scanning:
             ret = self.laser.turnOn()
             scan = ydlidar.LaserScan()
             print("start scanning ! press any key to stop")
-
+            # time.sleep(10)
             while ret and ydlidar.os_isOk() and self.flag[0]:
                 r = self.laser.doProcessSimple(scan)
                 if r:
@@ -66,15 +67,14 @@ class scanning:
                     #       1.0 / scan.config.scan_time, "]Hz")
 
                     # 将一个周期内的点集数据存入data
-                    # print(self.dataQueue.qsize())
+                    # print(self.data.qsize())
                     # for point in scan.points:
                     #     print(point.angle)
-                    print(self.dataQueue.qsize())
                     self.dataQueue.put(item=(scan.points,), block=True, timeout=1)
+                    self.showDataQueue.put(item=(scan.points,), block=True, timeout=1)
                 else:
                     print("Failed to get Lidar Data")
                 if self.dataQueue.qsize() < self.MaxL * 3 / 4:
-                    pass
                     time.sleep(0.05)
                 else:
                     print("Too many points in List")

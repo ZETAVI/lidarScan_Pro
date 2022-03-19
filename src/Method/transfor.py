@@ -19,22 +19,32 @@
 import math
 
 
-def transform(angle, distance):
+def transform(tempObj):
     """
     将以聚类的数据点进行坐标平移与坐标转换
     angle为角度
     distance为距离
-    角度和距离一一队以ing
+    角度和距离一一对应
     :
     """
-    # 距离最近的点的标号
+    # 找出距离最近的点及其标号
+    angle = []
+    distance = []
+    for point in tempObj:
+        angle.append(point[0])
+        distance.append(point[1])
     middle_index = distance.index(min(distance))
     # 旋转
-    t_angle = [angle[i] - angle[middle_index] + 90 for i in range(len(angle))]
+    Min_angle = angle[middle_index]
+    # for point in tempObj:
+    #     point[0] = point[0] - tempObj[index][0] + 90
+
+    t_angle = [angle[i] - Min_angle + 90 for i in range(len(angle))]
     # 极坐标转为笛卡尔坐标
+
     x = [math.cos(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
     y = [math.sin(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
     # 向下平移
     y2 = [y[i] - y[middle_index] for i in range(len(y))]
-
-    return (x, y2)
+    # 返回平移后的直角坐标和特征点在元组的序号
+    return x, y2, middle_index

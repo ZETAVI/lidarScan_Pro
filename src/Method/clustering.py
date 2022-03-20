@@ -16,7 +16,7 @@
 __author__ = 'bobi'
 
 import threading
-import queue
+import time
 
 import src.Method.globalFunc as Fun
 
@@ -25,22 +25,21 @@ class clustering:
     """聚类方法类"""
 
     # 构造函数
-    def __init__(self, dataQueue, flag, objectQueue):
+    def __init__(self, dataQueue, objectQueue, showObjQueue):
         self.dataQueue = dataQueue
         self.objectQueue = objectQueue
-        self.flag = flag
+        self.showObjQueue = showObjQueue
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
-        print("hello")
 
     # 启动聚类处理线程
     def cluster(self):
-        # pointsPeriod：一周期数据
-        pointsPeriod = None
         # 设置一个待处理链表空间
         pendingList = []
-        while self.flag[0]:
+        while True:
             # 从队头取元素 等待时间不能错过1秒
+            # pointsPeriod:一周期数据
+            pointsPeriod = None
             if not self.dataQueue.empty():
                 pointsPeriod = self.dataQueue.get(block=True, timeout=1)
             # 有可能去除失败
@@ -51,66 +50,58 @@ class clustering:
                 # 将取到的元组按元素点添加到待处理链表空间中
                 pendingList.extend(pointsPeriod[0])
 
-            # 初始化滑动窗口大小
-            window = 8
-
-            # 聚类距离阈值   最低数量阈值
-            r_max = 0.8
-            num_min = 5
-
             # idx表示待聚类点的起始下标
             idx = 0
             final = []
 
-            # 停止信号量
-            stop = 0
-
             # 开始聚类
-            while idx < len(pendingList):
-                # 每个窗口初始化阈值
+            while True:
+                # 初始化窗口大小
                 window = Fun.win_size(pendingList[idx].range)
+
+                # 截止位置暂停
+                if idx + window >= len(pendingList):
+                    break
+
+                # 初始化最少点阈值
                 num_min = Fun.min_point_number(window)
+                # 初始化聚类阈值
                 r_max = Fun.dis_get(pendingList[idx].range)
-                t = r_max
+                # 暂存聚类阈值
+                t_r_max = r_max
+                # 初始化跨越点阈值
                 r_add = Fun.across_dis(pendingList[idx].range)
 
-                # 截止位置
-                if idx + window >= 476:
-                    stop = 1
-
+                # 初始化
                 prev = pendingList[idx]
                 correct_point_list = [pendingList[idx]]
-                for j in range(idx + 1, idx + window):
-                    dis = Fun.distance(prev, pendingList[j])
-                    if dis <= r_max:
-                        correct_point_list.append(pendingList[j])
-                        # 重置
-                        prev = pendingList[j]
-                        r_max = t
 
+                for i in range(idx + 1, idx + window - 1):
+                    dis = Fun.distance(prev, pendingList[i])
+                    if dis <= r_max:
+                        correct_point_list.append(pendingList[i])
+                        # 重置
+                        prev = pendingList[i]
+                        r_max = t_r_max
                     else:
                         # 跨越点阈值增加
                         r_max += r_add
+                # 判断聚类对象是否符合相应的要求
                 if len(correct_point_list) >= num_min:
                     if Fun.k_judge(correct_point_list):
                         final.append(correct_point_list)
+                        # 聚类指针右移已聚类成功的长度
+                        idx += len(correct_point_list)
                     else:
-                        pass
-                        # print("斜率排除")
-                    # 聚类指针右移已聚类成功的长度
-                    idx += len(correct_point_list)
+                        idx += 1
+                        # print("斜率排除)
                 else:
                     # print("数目排除")
                     idx += 1
-                if stop == 1:
-                    break
-            self.objectQueue.put(item=final, block=True, timeout=1)
+            # todo 在某个地方对象会闪烁，其他地方又不会
+            # self.objectQueue.put(item=final, block=True, timeout=1)
+            temp = final
+            self.showObjQueue.put(item=temp, block=True, timeout=1)
+            # print("clustering聚类成功有:", self.showObjQueue.qsize())
             # 当一个聚类周期处理结束后  去除处理完的点(切片)
             pendingList = pendingList[idx:]
-
-    # 根据初始点startPoint,动态窗口大小
-    def dynamicRegulation(self, startPoint):
-        windowSize = 0
-        # todo 具体对应关系
-
-        return windowSize

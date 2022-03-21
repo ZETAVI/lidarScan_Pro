@@ -100,8 +100,8 @@ def distance(arg1, arg2):
 
 
 # 极坐标转直角坐标
-def transform(arg):
-    return arg.range * math.cos(arg.angle), arg.range * math.sin(arg.angle)
+def transform_clustering(arg):
+    return -arg.range * math.cos(arg.angle + math.pi), arg.range * math.sin(arg.angle + math.pi)
 
 
 # 求斜率
@@ -117,8 +117,8 @@ def k_judge(arg1):
     length = len(arg1)
     points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
               arg1[length - 1]]
-    if k_calculation(transform(points[0]), transform(points[2])) < 0 and \
-            k_calculation(transform(points[2]), transform(points[4])) > 0:
+    if k_calculation(transform_clustering(points[0]), transform_clustering(points[2])) < 0 and \
+            k_calculation(transform_clustering(points[2]), transform_clustering(points[4])) > 0:
         return True
     else:
         return False
@@ -128,49 +128,49 @@ def k_judge(arg1):
 def win_size(arg):
     arg = arg * 100
     if arg >= 250:
-        return 5
+        return 7
     elif arg >= 240:
-        return 5
+        return 7
     elif arg >= 230:
-        return 5
+        return 7
     elif arg >= 220:
-        return 6
+        return 7
     elif arg >= 210:
-        return 6
+        return 8
     elif arg >= 200:
-        return 6
+        return 8
     elif arg >= 190:
-        return 7
+        return 8
     elif arg >= 180:
-        return 7
+        return 9
     elif arg >= 170:
-        return 7
+        return 9
     elif arg >= 160:
-        return 8
+        return 10
     elif arg >= 150:
-        return 8
+        return 10
     elif arg >= 140:
-        return 8
-    elif arg >= 130:
-        return 9
-    elif arg >= 120:
-        return 9
-    elif arg >= 110:
         return 11
+    elif arg >= 130:
+        return 11
+    elif arg >= 120:
+        return 11
+    elif arg >= 110:
+        return 13
     elif arg >= 100:
-        return 12
+        return 14
     elif arg >= 90:
-        return 12
+        return 14
     elif arg >= 80:
-        return 12
+        return 15
     elif arg >= 70:
-        return 14
-    elif arg >= 60:
-        return 14
-    elif arg >= 50:
         return 16
+    elif arg >= 60:
+        return 17
+    elif arg >= 50:
+        return 18
     elif arg >= 40:
-        return 21
+        return 23
     else:
         return 25
 
@@ -183,75 +183,147 @@ def min_point_number(arg):
         return 3
 
 
-# 聚类阈值函数（形参为第一个点距离）
+# # 聚类阈值函数严格版（形参为第一个点距离）
+# def dis_get(arg):
+#     arg = arg * 100
+#     if 180 <= arg < 260:
+#         return 0.055
+#     elif 170 <= arg < 180:
+#         return 0.051
+#     elif 160 <= arg < 170:
+#         return 0.049
+#     elif 120 <= arg < 160:
+#         return 0.045
+#     elif 110 <= arg < 120:
+#         return 0.039
+#     elif 100 <= arg < 110:
+#         return 0.037
+#     elif 50 <= arg < 100:
+#         return 0.034
+#     elif 40 <= arg < 50:
+#         return 0.025
+#     else:
+#         return 0.02
+
+# 聚类阈值函数宽松版（形参为第一个点距离）
 def dis_get(arg):
     arg = arg * 100
     if 180 <= arg < 260:
-        return 0.055
+        return 0.07
     elif 170 <= arg < 180:
-        return 0.051
+        return 0.07
     elif 160 <= arg < 170:
-        return 0.049
+        return 0.06
     elif 120 <= arg < 160:
-        return 0.045
+        return 0.06
     elif 110 <= arg < 120:
-        return 0.039
+        return 0.05
     elif 100 <= arg < 110:
-        return 0.037
+        return 0.05
     elif 50 <= arg < 100:
-        return 0.034
+        return 0.05
     elif 40 <= arg < 50:
-        return 0.025
+        return 0.04
     else:
-        return 0.02
+        return 0.03
 
 
-# 跨越点阈值函数（形参为第一个点距离）
+# # 跨越点阈值函数严格版（形参为第一个点距离）
+# def across_dis(arg):
+#     arg = arg * 100
+#     if arg >= 250:
+#         return 0.042
+#     elif arg >= 240:
+#         return 0.037
+#     elif arg >= 230:
+#         return 0.037
+#     elif arg >= 220:
+#         return 0.035
+#     elif arg >= 210:
+#         return 0.035
+#     elif arg >= 200:
+#         return 0.034
+#     elif arg >= 190:
+#         return 0.032
+#     elif arg >= 180:
+#         return 0.032
+#     elif arg >= 170:
+#         return 0.032
+#     elif arg >= 160:
+#         return 0.029
+#     elif arg >= 150:
+#         return 0.029
+#     elif arg >= 140:
+#         return 0.027
+#     elif arg >= 130:
+#         return 0.025
+#     elif arg >= 120:
+#         return 0.024
+#     elif arg >= 110:
+#         return 0.022
+#     elif arg >= 100:
+#         return 0.021
+#     elif arg >= 90:
+#         return 0.018
+#     elif arg >= 80:
+#         return 0.017
+#     elif arg >= 70:
+#         return 0.015
+#     elif arg >= 60:
+#         return 0.014
+#     elif arg >= 50:
+#         return 0.014
+#     elif arg >= 40:
+#         return 0.010
+#     else:
+#         return 0.005
+
+# 跨越点阈值函数宽松版（形参为第一个点距离）
 def across_dis(arg):
     arg = arg * 100
     if arg >= 250:
-        return 0.042
+        return 0.06
     elif arg >= 240:
-        return 0.037
+        return 0.05
     elif arg >= 230:
-        return 0.037
+        return 0.05
     elif arg >= 220:
-        return 0.035
+        return 0.05
     elif arg >= 210:
-        return 0.035
+        return 0.05
     elif arg >= 200:
-        return 0.034
+        return 0.05
     elif arg >= 190:
-        return 0.032
+        return 0.05
     elif arg >= 180:
-        return 0.032
+        return 0.05
     elif arg >= 170:
-        return 0.032
+        return 0.05
     elif arg >= 160:
-        return 0.029
+        return 0.04
     elif arg >= 150:
-        return 0.029
+        return 0.04
     elif arg >= 140:
-        return 0.027
+        return 0.04
     elif arg >= 130:
-        return 0.025
+        return 0.04
     elif arg >= 120:
-        return 0.024
+        return 0.04
     elif arg >= 110:
-        return 0.022
+        return 0.04
     elif arg >= 100:
-        return 0.021
+        return 0.04
     elif arg >= 90:
-        return 0.018
+        return 0.03
     elif arg >= 80:
-        return 0.017
+        return 0.03
     elif arg >= 70:
-        return 0.015
+        return 0.03
     elif arg >= 60:
-        return 0.014
+        return 0.03
     elif arg >= 50:
-        return 0.014
+        return 0.03
     elif arg >= 40:
-        return 0.010
+        return 0.02
     else:
-        return 0.005
+        return 0.02

@@ -35,6 +35,8 @@ class controller():
         self.objectQueue = queue.Queue(maxsize=200)
         # 对象聚类显示队列
         self.showObjQueue = queue.Queue(maxsize=200)
+        # 对象2聚类显示队列
+        self.showObjQueue2 = queue.Queue(maxsize=200)
         # 关键点队列
         self.keyPoints = queue.Queue(maxsize=200)
         # 活动人队列

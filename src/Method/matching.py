@@ -49,7 +49,6 @@ class matching:
                 # print("队列为空")
                 time.sleep(0.1)
                 continue
-            startTime = time.time()
             # while True:
             # 待显示的聚类对象的集合
             final = []
@@ -81,5 +80,4 @@ class matching:
 
             # todo 第三步 将当前符合条件的所有聚类目标进行显示
             self.showObjQueue2.put(item=final, block=True, timeout=1)
-            print("时间：", time.time() - startTime)
             # print(final)

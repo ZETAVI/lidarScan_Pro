@@ -146,8 +146,6 @@ class clustering:
 
         for point in pointsPeriod:
             if point.range > 0.04:
-                point.range = round(point.range, 4)
-                # print("距离四舍五入:", point.range)
                 points.append(point)
 
         length = len(points)

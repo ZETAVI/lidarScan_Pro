@@ -18,6 +18,7 @@ __author__ = 'bobi'
 import threading
 import src.Method.globalFunc as Fun
 from src.Object import keyPoint
+import time
 
 
 class matching:
@@ -33,25 +34,50 @@ class matching:
     # 拟合线程
     def match(self):
         while True:
+
+            # 从队头取元素 等待时间不能错过1秒
+            # todo 第一步 从当聚类对象队列非空时中取出所有聚类目标
+            objectsPeriod = None
             if not self.objectQueue.empty():
-                # 从objectQueue队列中取已经聚类好的object
-                # object类型为元组
-                object = self.objectQueue.get(block=True, timeout=1)
+                objectsPeriod = self.objectQueue.get(block=True, timeout=1)
+                # print("取出成功")
 
-                # 具体实现思路：进行平移处理，然后判断是否符合人腿特征，符合的将其添加入特征点元组
-                for tempObj in object:
-                    x, y, middle_index = Fun.transform_matching(tempObj)
-                    if Fun.judege(x, y):
-                        # # 判断上一帧的特征点中是否有相近特征点 有的话就当场替换，没有就添加
-                        # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
-                        #     continue
-                        # 如果初步符合特征,提取特征点
-                        tempkeypoint = keyPoint(position=tempObj[middle_index])
-                        # tempkeypoint.generatePID()
-                        # tempkeypoint.setTime()
-                        print("找到符合的特征点")
-                        print(tempObj[middle_index].angle, tempObj[middle_index].range)
+            # 有可能取出失败
+            if objectsPeriod is None:
+                print("队列为空")
+                time.sleep(0.1)
+                continue
 
-                        # 存入keyPoints队列后续处理
-                        self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
-                        # print(tempkeypoint)
+            # while True:
+            # 待显示的聚类对象的集合
+            final = []
+            # if not self.objectQueue.empty():
+            # 从objectQueue队列中取已经聚类好的object
+            # object类型为元组
+            # object = self.objectQueue.get(block=True, timeout=1)
+            # todo 第二步 处理取出的所有聚类目标
+            # 具体实现思路：进行平移处理，然后判断是否符合人腿特征，符合的将其添加入特征点元组
+            # print("2222")
+            for tempObj in objectsPeriod:
+                x, y, middle_index = Fun.transform_matching(tempObj)
+
+                if Fun.judege(x, y, middle_index):
+                    # # 判断上一帧的特征点中是否有相近特征点 有的话就当场替换，没有就添加
+                    # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
+                    #     continue
+                    # 如果初步符合特征,提取特征点
+                    tempkeypoint = keyPoint(position=tempObj[middle_index])
+
+                    # print("找到符合的特征点")
+                    # print(tempObj[middle_index].angle, tempObj[middle_index].range)
+
+                    # 将聚类对象添加入待显示对象队列
+                    final.append(tempObj)
+
+                    # 存入keyPoints队列等待后续处理
+                    # self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
+                    # print(tempkeypoint)
+            # todo 第三步 将当前符合条件的所有聚类目标进行显示
+            temp = final
+            self.showObjQueue2.put(item=temp, block=True, timeout=1)
+            # print(final)

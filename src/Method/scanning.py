@@ -50,9 +50,11 @@ class scanning:
         self.laser.setlidaropt(ydlidar.LidarPropScanFrequency, 10.0)
         self.laser.setlidaropt(ydlidar.LidarPropSampleRate, 3)
         self.laser.setlidaropt(ydlidar.LidarPropSingleChannel, True)
+        # 控制雷达扫描范围
         self.laser.setlidaropt(ydlidar.LidarPropMaxAngle, 180.0)
         self.laser.setlidaropt(ydlidar.LidarPropMinAngle, -180.0)
-        self.laser.setlidaropt(ydlidar.LidarPropMaxRange, 8.0)
+        # 雷达扫描距离范围 米
+        self.laser.setlidaropt(ydlidar.LidarPropMaxRange, 5.0)
         self.laser.setlidaropt(ydlidar.LidarPropMinRange, 0.08)
         ret = self.laser.initialize()
         if ret:
@@ -75,6 +77,7 @@ class scanning:
                 else:
                     print("Failed to get Lidar Data")
                 if self.dataQueue.qsize() < self.MaxL * 3 / 4:
+                    # time.sleep(1000)
                     time.sleep(0.05)
                 else:
                     print("Too many points in List")

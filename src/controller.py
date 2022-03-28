@@ -48,8 +48,8 @@ class controller():
         clustering(dataQueue=self.dataQueue, objectQueue=self.objectQueue, showFillterQueue=self.showFilterQueue,
                    showObjQueue=self.showObjQueue)
 
-        matching(objectQueue=self.objectQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2)
-        MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQue, self.showObjQueue2).start()
+        # matching(objectQueue=self.objectQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2)
+        MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQueue).start()
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
         print("进程启动成功！")
 

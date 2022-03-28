@@ -59,13 +59,13 @@ class MyWidget(pg.GraphicsWindow):
         self.plotDataItem3 = self.plotItem3.plot([], pen=None, symbolBrush=(255, 0, 0),
                                                  symbolSize=5, symbolPen=None)
 
-        # 雷达聚类处理图
-        self.timer4 = QtCore.QTimer(self)
-        self.timer4.setInterval(10)  # in milliseconds
-        self.timer4.start()
-        self.timer4.timeout.connect(self.onNewData4)
-        self.plotItem4 = self.addPlot(title="Lidar4 points")
-        self.plotDataItem4 = self.plotItem4.plot([], pen=None, symbolBrush=(255, 0, 0), symbolSize=5, symbolPen=None)
+        # # 雷达聚类处理图
+        # self.timer4 = QtCore.QTimer(self)
+        # self.timer4.setInterval(10)  # in milliseconds
+        # self.timer4.start()
+        # self.timer4.timeout.connect(self.onNewData4)
+        # self.plotItem4 = self.addPlot(title="Lidar4 points")
+        # self.plotDataItem4 = self.plotItem4.plot([], pen=None, symbolBrush=(255, 0, 0), symbolSize=5, symbolPen=None)
 
     def onNewData1(self):
         data = self.data[0]

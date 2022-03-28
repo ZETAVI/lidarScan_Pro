@@ -24,11 +24,13 @@ import time
 class matching:
     """聚类对象拟合与特征提取"""
 
-    def __init__(self, objectQueue, keyPoints):
+    def __init__(self, objectQueue, keyPoints, showObjQueue2):
         # object点集
         self.objectQueue = objectQueue
         # 特征点集
         self.keyPoints = keyPoints
+        # 结果点集
+        self.showObjQueue2 = showObjQueue2
         threading.Thread(target=self.match, ).start()
 
     # 拟合线程
@@ -40,14 +42,14 @@ class matching:
             objectsPeriod = None
             if not self.objectQueue.empty():
                 objectsPeriod = self.objectQueue.get(block=True, timeout=1)
-                # print("取出成功")
+                print("取出成功")
 
             # 有可能取出失败
             if objectsPeriod is None:
-                print("队列为空")
+                # print("队列为空")
                 time.sleep(0.1)
                 continue
-
+            startTime = time.time()
             # while True:
             # 待显示的聚类对象的集合
             final = []
@@ -59,8 +61,7 @@ class matching:
             # 具体实现思路：进行平移处理，然后判断是否符合人腿特征，符合的将其添加入特征点元组
             # print("2222")
             for tempObj in objectsPeriod:
-                x, y, middle_index = Fun.transform_matching(tempObj)
-
+                x, y, middle_index = Fun.transform_matching2(tempObj)
                 if Fun.judege(x, y, middle_index):
                     # # 判断上一帧的特征点中是否有相近特征点 有的话就当场替换，没有就添加
                     # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
@@ -77,7 +78,8 @@ class matching:
                     # 存入keyPoints队列等待后续处理
                     # self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
                     # print(tempkeypoint)
+
             # todo 第三步 将当前符合条件的所有聚类目标进行显示
-            temp = final
-            self.showObjQueue2.put(item=temp, block=True, timeout=1)
+            self.showObjQueue2.put(item=final, block=True, timeout=1)
+            print("时间：", time.time() - startTime)
             # print(final)

@@ -29,6 +29,8 @@ class controller():
         self.dataQueue = queue.Queue(maxsize=500)
         # 雷达数据显示队列
         self.showDataQueue = queue.Queue(maxsize=200)
+        # 噪点过滤显示队列
+        self.showFilterQueue = queue.Queue(maxsize=200)
         # 对象聚类队列
         self.objectQueue = queue.Queue(maxsize=200)
         # 对象聚类显示队列
@@ -41,9 +43,11 @@ class controller():
     # todo  warning:启动线程 一个个线程打开 因为后续线程依赖前面线程的数据 所以需要前面的线程得到验证后再打开下一步线程
     def startThread(self):
         scanning(dataQueue=self.dataQueue, showDataQueue=self.showDataQueue, flag=self.flag)
-        clustering(dataQueue=self.dataQueue, objectQueue=self.objectQueue, showObjQueue=self.showObjQueue)
-        MyQtWidgets(self.showDataQueue, self.showObjQueue).start()
-        # matching(objectQueue=self.objectQueue, flag=self.flag, keyPoints=self.keyPoints)
+        clustering(dataQueue=self.dataQueue, objectQueue=self.objectQueue, showFillterQueue=self.showFilterQueue,
+                   showObjQueue=self.showObjQueue)
+
+        matching(objectQueue=self.objectQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2)
+        MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQue, self.showObjQueue2).start()
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
         print("进程启动成功！")
 

@@ -96,20 +96,23 @@ def transform_matching(tempObj):
 # 极坐标下两点距离(距离，角度)
 def distance(arg1, arg2):
     return sqrt(abs(pow(arg1.range, 2) + pow(arg2.range, 2) - 2 * arg1.range * arg2.range * math.cos(
-        math.radians(arg1.angle) - math.radians(arg2.angle))))
+        arg1.angle - arg2.angle)))
 
 
 # 极坐标转直角坐标
 def transform_clustering(arg):
-    return -arg.range * math.cos(arg.angle + math.pi), arg.range * math.sin(arg.angle + math.pi)
+    return arg.range * math.cos(arg.angle), arg.range * math.sin(arg.angle)
 
 
 # 求斜率
 def k_calculation(arg1, arg2):
+    print("点的坐标", arg1[0], arg1[1], arg2[0], arg2[1])
     if arg1[0] - arg2[0] == 0:
         return 0
     else:
-        return (arg1[1] - arg2[1]) / (arg1[0] - arg2[0])
+        k = (arg1[1] - arg2[1]) / (arg1[0] - arg2[0])
+        print("两点斜率为", k)
+        return k
 
 
 # 斜率规则判断函数
@@ -117,6 +120,7 @@ def k_judge(arg1):
     length = len(arg1)
     points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
               arg1[length - 1]]
+    print("选取的三个点为")
     if k_calculation(transform_clustering(points[0]), transform_clustering(points[2])) < 0 and \
             k_calculation(transform_clustering(points[2]), transform_clustering(points[4])) > 0:
         return True
@@ -177,8 +181,8 @@ def win_size(arg):
 
 # 最少点数函数(形参为窗口大小)
 def min_point_number(arg):
-    if arg / 2 > 3:
-        return arg / 2
+    if arg / 3 > 3:
+        return arg / 3
     else:
         return 3
 

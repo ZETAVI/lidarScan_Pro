@@ -49,34 +49,30 @@ class MyWidget(pg.GraphicsWindow):
         self.plotDataItem2 = self.plotItem2.plot([], pen=None, symbolBrush=(255, 0, 0),
                                                  symbolSize=5, symbolPen=None)
 
-        # for i in range(0, len(self.data)):
-        #     def onNewData():
-        #         # global item
-        #         curData = self.data[i]
-        #         if data.qsize() > 20:
-        #             self.timer.setInterval(90)
-        #         elif data.qsize() < 20:
-        #             self.timer.setInterval(130)
-        #         if not data.empty():
-        #             angle = []
-        #             ran = []
-        #             curData = data.get(block=True, timeout=1)[0]
-        #             for point in curData:
-        #                 [x, y] = transform(point)
-        #                 angle.append(x)
-        #                 ran.append(y)
-        #             self.plotDataItem[i].setData(angle, ran)
-        #     self.timer.timeout.connect(onNewData)
-        #     plotItem = self.addPlot(title="Lidar points")
-        #     plotDataItem = plotItem.plot([], pen=None, symbolBrush=(255, 0, 0), symbolSize=5,
-        #                                  symbolPen=None)
-        #     self.plotDataItem.append(plotDataItem)
+        self.nextRow()
+
+        self.timer3 = QtCore.QTimer(self)
+        self.timer3.setInterval(10)  # in milliseconds
+        self.timer3.start()
+        self.timer3.timeout.connect(self.onNewData3)
+        self.plotItem3 = self.addPlot(title="Lidar3 points")
+        self.plotDataItem3 = self.plotItem3.plot([], pen=None, symbolBrush=(255, 0, 0),
+                                                 symbolSize=5, symbolPen=None)
+
+        # 雷达聚类处理图
+        self.timer4 = QtCore.QTimer(self)
+        self.timer4.setInterval(10)  # in milliseconds
+        self.timer4.start()
+        self.timer4.timeout.connect(self.onNewData4)
+        self.plotItem4 = self.addPlot(title="Lidar4 points")
+        self.plotDataItem4 = self.plotItem4.plot([], pen=None, symbolBrush=(255, 0, 0), symbolSize=5, symbolPen=None)
 
     def onNewData1(self):
         data = self.data[0]
-        if data.qsize() > 25:
+        # print("showDataQueue size:", data.qsize())
+        if data.qsize() > 30:
             self.timer1.setInterval(5)
-        elif data.qsize() < 20:
+        elif data.qsize() < 25:
             self.timer1.setInterval(130)
         if not data.empty():
             angle = []
@@ -90,12 +86,29 @@ class MyWidget(pg.GraphicsWindow):
 
     def onNewData2(self):
         data = self.data[1]
-        if data.qsize() > 20:
-            self.timer2.setInterval(5)
+
+        if data.qsize() > 7:
+            self.timer2.setInterval(20)
+        elif data.qsize() < 5:
+            self.timer2.setInterval(100)
+        if not data.empty():
+            angle = []
+            ran = []
+            curData = data.get(block=True, timeout=1)
+            for point in curData:
+                [x, y] = transform_clustering(point)
+                angle.append(x)
+                ran.append(y)
+            self.plotDataItem2.setData(angle, ran)
+
+    def onNewData3(self):
+        # print(time.time())
+        data = self.data[2]
+        # print("showDataQueue size:", data.qsize())
+        if data.qsize() > 15:
+            self.timer3.setInterval(20)
         elif data.qsize() < 10:
-            self.timer2.setInterval(130)
-        else:
-            pass
+            self.timer3.setInterval(100)
         if not data.empty():
             angle = []
             ran = []
@@ -105,7 +118,27 @@ class MyWidget(pg.GraphicsWindow):
                     [x, y] = transform_clustering(point)
                     angle.append(x)
                     ran.append(y)
-            self.plotDataItem2.setData(angle, ran)
+            self.plotDataItem3.setData(angle, ran)
+
+    def onNewData4(self):
+        data = self.data[3]
+        if data.qsize() > 15:
+            self.timer4.setInterval(5)
+        elif data.qsize() < 2:
+            self.timer4.setInterval(130)
+        else:
+            pass
+        if not data.empty():
+            angle = []
+            ran = []
+            # 这里的data是聚类对象的显示队列
+            curData = data.get(block=True, timeout=1)
+            for obj in curData:
+                for point in obj:
+                    [x, y] = transform_clustering(point)
+                    angle.append(x)
+                    ran.append(y)
+            self.plotDataItem4.setData(angle, ran)
 
 
 class MyQtWidgets(threading.Thread):

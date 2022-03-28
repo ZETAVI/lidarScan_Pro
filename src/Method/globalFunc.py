@@ -19,25 +19,35 @@ from math import sqrt
 
 
 def judege(x, y, middle_index):
+    # for i in range(len(x)):
+    #     print("坐标为x:", x[i], ",y:", y[i], "\n")
     tag = False  # 最终判断
     tag_left = True  # 左边判断
     tag_right = True  # 右边判断
     # 运用扫描窗口内边界点和原点的夹角角度初步排除
     n = len(x)
+    # todo 判断直线
+    if x[0] == 0 or x[n - 1] == 0:
+        middle = math.floor(n / 2)
+        realangle = angle_calculate(x, y, 0, middle, n - 1)
+        if realangle > 170:
+            # print("判断结果为非人腿！\n")
+            return False
     if x[0] != 0 and x[n - 1] != 0:
         realangle = angle_calculate(x, y, 0, middle_index, n - 1)
+        if realangle > 170:
+            # print("判断结果为非人腿！\n")
+            return False
         # print("大夹角为:", realangle)
         # if not (realangle < 145 and realangle > 92) or (realangle < 80):
         # 当大夹角在80到92度之间,还有小于50度的角判定为直角
+        # if (realangle < 92 and realangle > 80) or realangle <= 50:
         if realangle < 92 and realangle > 80:
-            #  if (realangle < 92 and realangle > 80) or realangle <= 50:            print("有直角")
-            print(x, y)
             return False
+            # print("判断结果为非人腿！\n")
         #  当大夹角在大于165度为直线
-        if realangle > 165:
-            print("有直线")
-            print(x, y)
-            return False
+        # if realangle > 165:
+        #     return False
         tag = True
         # else:
         # 进一步判断
@@ -48,7 +58,6 @@ def judege(x, y, middle_index):
                 if left_realangle > 170:
                     tag_left = False
             if n - 1 - middle_index > 1:
-
                 right_realangle = angle_calculate(x, y, middle_index, math.floor((n - 1 + middle_index) / 2), n - 1)
                 # print("右夹角为:", right_realangle)
                 if right_realangle > 170:
@@ -73,6 +82,10 @@ def judege(x, y, middle_index):
         if(res < 2.5*10**-5):
             tag = True
         '''
+        # if tag:
+        #     print("判断结果为人腿！\n")
+        # else:
+        #     print("判断结果为非人腿！\n")
     return tag
 
 
@@ -114,18 +127,35 @@ def transform_matching(tempObj):
     middle_index = distance.index(min(distance))
     # 旋转
     Min_angle = angle[middle_index]
-    # for point in tempObj:
-    #     point[0] = point[0] - tempObj[index][0] + 90
-
-    t_angle = [angle[i] - Min_angle + 90 for i in range(len(angle))]
+    t_angle = [angle[i] - Min_angle + math.pi / 2 for i in range(len(angle))]
     # 极坐标转为笛卡尔坐标
-
-    x = [math.cos(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
-    y = [math.sin(math.radians(t_angle[i])) * distance[i] for i in range(len(t_angle))]
+    x = [math.cos(t_angle[i]) * distance[i] for i in range(len(t_angle))]
+    y = [math.sin(t_angle[i]) * distance[i] for i in range(len(t_angle))]
     # 向下平移
     y2 = [y[i] - y[middle_index] for i in range(len(y))]
+    x[middle_index] = 0.0
     # 返回平移后的直角坐标和特征点在元组的序号
     return x, y2, middle_index
+
+
+def transform_matching2(tempObj):
+    """
+    将极坐标转化为直角坐标，并返回最近点的下标
+    :
+    """
+    # 找出距离最近的点及其标号
+    angle = []
+    distance = []
+    for point in tempObj:
+        angle.append(point.angle)
+        distance.append(point.range)
+    middle_index = distance.index(min(distance))
+    # 极坐标转为笛卡尔坐标
+    x = [math.cos(angle[i]) * distance[i] for i in range(len(angle))]
+    y = [math.sin(angle[i]) * distance[i] for i in range(len(angle))]
+    x[middle_index] = 0.0
+    # 返回平移后的直角坐标和特征点在元组的序号
+    return x, y, middle_index
 
 
 # 极坐标下两点距离(距离，角度)

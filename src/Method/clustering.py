@@ -132,7 +132,7 @@ class clustering:
                     # print("数目排除")
                     idx += 1
                 # print("更新idx开始准备下一轮尝试,idx更新为", idx)
-            # self.objectQueue.put(item=final, block=True, timeout=1)
+            self.objectQueue.put(item=final, block=True, timeout=1)
             self.showObjQueue.put(item=final, block=True, timeout=1)
             # # print("clustering聚类成功有:", self.showObjQueue.qsize())
 

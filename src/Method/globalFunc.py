@@ -21,7 +21,6 @@ from math import sqrt
 def judege(x, y, middle_index):
     for i in range(len(x)):
         print("坐标为x:", x[i], ",y:", y[i], "\n")
-
     tag = False  # 最终判断
     tag_left = True  # 左边判断
     tag_right = True  # 右边判断
@@ -49,7 +48,6 @@ def judege(x, y, middle_index):
         # if realangle < 92 and realangle > 80:
         #     print("判断结果为非人腿！\n")
         #     return False
-
         #  当大夹角在大于165度为直线
         # if realangle > 165:
         #     return False

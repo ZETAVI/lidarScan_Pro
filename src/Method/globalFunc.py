@@ -19,32 +19,37 @@ from math import sqrt
 
 
 def judege(x, y, middle_index):
-    # for i in range(len(x)):
-    #     print("坐标为x:", x[i], ",y:", y[i], "\n")
+    for i in range(len(x)):
+        print("坐标为x:", x[i], ",y:", y[i], "\n")
+
     tag = False  # 最终判断
     tag_left = True  # 左边判断
     tag_right = True  # 右边判断
     # 运用扫描窗口内边界点和原点的夹角角度初步排除
+    print("最低点坐标为x:", x[middle_index], ",y:", y[middle_index])
     n = len(x)
     # todo 判断直线
-    if x[0] == 0 or x[n - 1] == 0:
+    if middle_index == 0 or middle_index == n - 1:
         middle = math.floor(n / 2)
         realangle = angle_calculate(x, y, 0, middle, n - 1)
-        if realangle > 170:
-            # print("判断结果为非人腿！\n")
+        if realangle > 155:
+            print("大夹角为:", realangle)
+            print("判断结果为非人腿！\n")
             return False
-    if x[0] != 0 and x[n - 1] != 0:
+    else:
         realangle = angle_calculate(x, y, 0, middle_index, n - 1)
-        if realangle > 170:
-            # print("判断结果为非人腿！\n")
+        print("大夹角为:", realangle)
+        if realangle > 155:
+            print("判断结果为非人腿！\n")
             return False
-        # print("大夹角为:", realangle)
         # if not (realangle < 145 and realangle > 92) or (realangle < 80):
         # 当大夹角在80到92度之间,还有小于50度的角判定为直角
         # if (realangle < 92 and realangle > 80) or realangle <= 50:
-        if realangle < 92 and realangle > 80:
-            return False
-            # print("判断结果为非人腿！\n")
+
+        # if realangle < 92 and realangle > 80:
+        #     print("判断结果为非人腿！\n")
+        #     return False
+
         #  当大夹角在大于165度为直线
         # if realangle > 165:
         #     return False
@@ -52,14 +57,27 @@ def judege(x, y, middle_index):
         # else:
         # 进一步判断
         if n >= 5:
+            if middle_index != 1:
+                realangle2 = angle_calculate(x, y, 1, middle_index, n - 1)
+            else:
+                realangle2 = angle_calculate(x, y, 1, math.floor((n - 2) / 2), n - 1)
+            if middle_index != n - 2:
+                realangle3 = angle_calculate(x, y, 0, middle_index, n - 2)
+            else:
+                realangle3 = angle_calculate(x, y, 0, math.floor((n - 2) / 2), n - 2)
+            if realangle2 > 170 or realangle3 > 170:
+                return False;
             if middle_index > 1:
                 left_realangle = angle_calculate(x, y, 0, math.floor(middle_index / 2), middle_index)
-                # print("左夹角为:", left_realangle)
+                print("左中间点坐标为x:", x[math.floor(middle_index / 2)], ",y:", y[math.floor(middle_index / 2)])
+                print("左夹角为:", left_realangle)
                 if left_realangle > 170:
                     tag_left = False
             if n - 1 - middle_index > 1:
                 right_realangle = angle_calculate(x, y, middle_index, math.floor((n - 1 + middle_index) / 2), n - 1)
-                # print("右夹角为:", right_realangle)
+                print("右中间点坐标为x:", x[math.floor((n - 1 + middle_index) / 2)], ",y:",
+                      y[math.floor((n - 1 + middle_index) / 2)])
+                print("右夹角为:", right_realangle)
                 if right_realangle > 170:
                     tag_right = False
             # 当且仅当左右两边均像直线的情况下才认定为直角
@@ -82,10 +100,10 @@ def judege(x, y, middle_index):
         if(res < 2.5*10**-5):
             tag = True
         '''
-        # if tag:
-        #     print("判断结果为人腿！\n")
-        # else:
-        #     print("判断结果为非人腿！\n")
+        if tag:
+            print("判断结果为人腿！\n")
+        else:
+            print("判断结果为非人腿！\n")
     return tag
 
 
@@ -97,12 +115,17 @@ def angle_calculate(x, y, left, middle_index, right):
     y2 = y[middle_index]
     x3 = x[right]
     y3 = y[right]
+    # print("x1=", x1,",y1=", y1,",x2=", x2,",y2=", y2)
     c2 = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)
     a2 = (x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2)
     b2 = (x1 - x3) * (x1 - x3) + (y1 - y3) * (y1 - y3)
+    # print("c2=", c2)
+
     a = math.sqrt(a2)
     b = math.sqrt(b2)
     c = math.sqrt(c2)
+    # print("a=",a)
+    # print("c=",c)
     pos = (a2 + c2 - b2) / (2 * a * c)  # 求出余弦值
     angle = math.acos(pos)  # 余弦值装换为弧度值
     realangle = math.degrees(angle)  # 弧度值转换为角度值
@@ -153,7 +176,6 @@ def transform_matching2(tempObj):
     # 极坐标转为笛卡尔坐标
     x = [math.cos(angle[i]) * distance[i] for i in range(len(angle))]
     y = [math.sin(angle[i]) * distance[i] for i in range(len(angle))]
-    x[middle_index] = 0.0
     # 返回平移后的直角坐标和特征点在元组的序号
     return x, y, middle_index
 
@@ -195,53 +217,59 @@ def k_judge(arg1):
 
 # 窗口大小获取函数（形参为第一个点距离）
 def win_size(arg):
-    arg = arg * 100
-    if arg >= 250:
-        return 7
-    elif arg >= 240:
-        return 7
-    elif arg >= 230:
-        return 7
-    elif arg >= 220:
-        return 7
-    elif arg >= 210:
-        return 8
-    elif arg >= 200:
-        return 8
-    elif arg >= 190:
-        return 8
-    elif arg >= 180:
-        return 9
-    elif arg >= 170:
-        return 9
-    elif arg >= 160:
-        return 10
-    elif arg >= 150:
-        return 10
-    elif arg >= 140:
-        return 11
-    elif arg >= 130:
-        return 11
-    elif arg >= 120:
-        return 11
-    elif arg >= 110:
-        return 13
-    elif arg >= 100:
-        return 14
-    elif arg >= 90:
-        return 14
-    elif arg >= 80:
-        return 15
-    elif arg >= 70:
-        return 16
-    elif arg >= 60:
-        return 17
-    elif arg >= 50:
-        return 18
-    elif arg >= 40:
-        return 23
-    else:
-        return 25
+    arg = int(arg * 10)
+    if arg >= 26:
+        return 6
+    num = [25, 25, 25, 25, 23, 18, 17, 16, 15, 14, 14, 13, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7]
+    return num[arg]
+
+    # arg = arg * 100
+    # if arg >= 250:
+    #     return 7
+    # elif arg >= 240:
+    #     return 7
+    # elif arg >= 230:
+    #     return 7
+    # elif arg >= 220:
+    #     return 7
+    # elif arg >= 210:
+    #     return 8
+    # elif arg >= 200:
+    #     return 8
+    # elif arg >= 190:
+    #     return 8
+    # elif arg >= 180:
+    #     return 9
+    # elif arg >= 170:
+    #     return 9
+    # elif arg >= 160:
+    #     return 10
+    # elif arg >= 150:
+    #     return 10
+    # elif arg >= 140:
+    #     return 11
+    # elif arg >= 130:
+    #     return 11
+    # elif arg >= 120:
+    #     return 11
+    # elif arg >= 110:
+    #     return 13
+    # elif arg >= 100:
+    #     return 14
+    # elif arg >= 90:
+    #     return 14
+    # elif arg >= 80:
+    #     return 15
+    # elif arg >= 70:
+    #     return 16
+    # elif arg >= 60:
+    #     return 17
+    # elif arg >= 50:
+    #     return 18
+    # elif arg >= 40:
+    #     return 23
+    # else:
+    #     return 25
 
 
 # 最少点数函数(形参为窗口大小)
@@ -276,25 +304,32 @@ def min_point_number(arg):
 
 # 聚类阈值函数宽松版（形参为第一个点距离）
 def dis_get(arg):
-    arg = arg * 100
-    if 180 <= arg < 260:
-        return 0.07
-    elif 170 <= arg < 180:
-        return 0.07
-    elif 160 <= arg < 170:
-        return 0.06
-    elif 120 <= arg < 160:
-        return 0.06
-    elif 110 <= arg < 120:
-        return 0.05
-    elif 100 <= arg < 110:
-        return 0.05
-    elif 50 <= arg < 100:
-        return 0.05
-    elif 40 <= arg < 50:
-        return 0.04
-    else:
-        return 0.03
+    arg = int(arg * 10)
+    if arg >= 26:
+        return 0.08
+    num = [0.03, 0.03, 0.03, 0.03, 0.04, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.07,
+           0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07]
+    return num[arg]
+
+    # arg = arg * 100
+    # if 180 <= arg < 260:
+    #     return 0.07
+    # elif 170 <= arg < 180:
+    #     return 0.07
+    # elif 160 <= arg < 170:
+    #     return 0.06
+    # elif 120 <= arg < 160:
+    #     return 0.06
+    # elif 110 <= arg < 120:
+    #     return 0.05
+    # elif 100 <= arg < 110:
+    #     return 0.05
+    # elif 50 <= arg < 100:
+    #     return 0.05
+    # elif 40 <= arg < 50:
+    #     return 0.04
+    # else:
+    #     return 0.03
 
 
 # # 跨越点阈值函数严格版（形参为第一个点距离）

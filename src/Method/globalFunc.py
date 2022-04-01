@@ -189,243 +189,65 @@ def transform_clustering(arg):
     return arg.range * math.cos(arg.angle), arg.range * math.sin(arg.angle)
 
 
-# 求斜率
-def k_calculation(arg1, arg2):
-    print("点的坐标", arg1[0], arg1[1], arg2[0], arg2[1])
-    if arg1[0] - arg2[0] == 0:
-        return 0
-    else:
-        k = (arg1[1] - arg2[1]) / (arg1[0] - arg2[0])
-        print("两点斜率为", k)
-        return k
-
-
-# 斜率规则判断函数
-def k_judge(arg1):
-    length = len(arg1)
-    points = [arg1[0], arg1[int((length - 1) / 4)], arg1[int((length - 1) / 2)], arg1[int(3 * (length - 1) / 4)],
-              arg1[length - 1]]
-    print("选取的三个点为")
-    if k_calculation(transform_clustering(points[0]), transform_clustering(points[2])) < 0 and \
-            k_calculation(transform_clustering(points[2]), transform_clustering(points[4])) > 0:
-        return True
-    else:
-        return False
-
-
+# 3月30日的阈值数据
 # 窗口大小获取函数（形参为第一个点距离）
 def win_size(arg):
-    arg = int(arg * 10)
+    arg = round(arg * 10)
     if arg >= 26:
-        return 6
-    num = [25, 25, 25, 25, 23, 18, 17, 16, 15, 14, 14, 13, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7]
+        return 4
+    num = [27, 27, 27, 27, 25, 20, 18, 15, 15, 14, 13, 11, 11, 9, 9, 9, 8, 8, 8, 8, 7, 7, 6, 6, 5, 5]
     return num[arg]
 
-    # arg = arg * 100
-    # if arg >= 250:
-    #     return 7
-    # elif arg >= 240:
-    #     return 7
-    # elif arg >= 230:
-    #     return 7
-    # elif arg >= 220:
-    #     return 7
-    # elif arg >= 210:
-    #     return 8
-    # elif arg >= 200:
-    #     return 8
-    # elif arg >= 190:
-    #     return 8
-    # elif arg >= 180:
-    #     return 9
-    # elif arg >= 170:
-    #     return 9
-    # elif arg >= 160:
-    #     return 10
-    # elif arg >= 150:
-    #     return 10
-    # elif arg >= 140:
-    #     return 11
-    # elif arg >= 130:
-    #     return 11
-    # elif arg >= 120:
-    #     return 11
-    # elif arg >= 110:
-    #     return 13
-    # elif arg >= 100:
-    #     return 14
-    # elif arg >= 90:
-    #     return 14
-    # elif arg >= 80:
-    #     return 15
-    # elif arg >= 70:
-    #     return 16
-    # elif arg >= 60:
-    #     return 17
-    # elif arg >= 50:
-    #     return 18
-    # elif arg >= 40:
-    #     return 23
-    # else:
-    #     return 25
 
-
-# 最少点数函数(形参为窗口大小)
+# # 最少点数函数 (形参为窗口大小)
 def min_point_number(arg):
-    if arg / 3 > 3:
-        return arg / 3
+    # 介于1/3和1/2之间
+    if 5 * arg / 12 > 3:
+        return round(5 * arg / 12)
     else:
         return 3
 
 
-# # 聚类阈值函数严格版（形参为第一个点距离）
-# def dis_get(arg):
-#     arg = arg * 100
-#     if 180 <= arg < 260:
-#         return 0.055
-#     elif 170 <= arg < 180:
-#         return 0.051
-#     elif 160 <= arg < 170:
-#         return 0.049
-#     elif 120 <= arg < 160:
-#         return 0.045
-#     elif 110 <= arg < 120:
-#         return 0.039
-#     elif 100 <= arg < 110:
-#         return 0.037
-#     elif 50 <= arg < 100:
-#         return 0.034
-#     elif 40 <= arg < 50:
-#         return 0.025
-#     else:
-#         return 0.02
-
-# 聚类阈值函数宽松版（形参为第一个点距离）
+# # 聚类阈值函数（形参为第一个点距离）
 def dis_get(arg):
-    arg = int(arg * 10)
+    arg = round(arg * 10)
     if arg >= 26:
-        return 0.08
-    num = [0.03, 0.03, 0.03, 0.03, 0.04, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.07,
-           0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07]
+        return 0.067
+    num = [0.043, 0.043, 0.043, 0.043, 0.045, 0.047, 0.050, 0.050, 0.052, 0.052, 0.0521, 0.0522, 0.0523, 0.056, 0.056,
+           0.056, 0.056, 0.056, 0.057, 0.058, 0.058, 0.0582, 0.05822, 0.06, 0.06, 0.0609]
     return num[arg]
 
-    # arg = arg * 100
-    # if 180 <= arg < 260:
-    #     return 0.07
-    # elif 170 <= arg < 180:
-    #     return 0.07
-    # elif 160 <= arg < 170:
-    #     return 0.06
-    # elif 120 <= arg < 160:
-    #     return 0.06
-    # elif 110 <= arg < 120:
-    #     return 0.05
-    # elif 100 <= arg < 110:
-    #     return 0.05
-    # elif 50 <= arg < 100:
-    #     return 0.05
-    # elif 40 <= arg < 50:
-    #     return 0.04
-    # else:
-    #     return 0.03
 
+# 3月30日的阈值数据
 
-# # 跨越点阈值函数严格版（形参为第一个点距离）
-# def across_dis(arg):
-#     arg = arg * 100
-#     if arg >= 250:
-#         return 0.042
-#     elif arg >= 240:
-#         return 0.037
-#     elif arg >= 230:
-#         return 0.037
-#     elif arg >= 220:
-#         return 0.035
-#     elif arg >= 210:
-#         return 0.035
-#     elif arg >= 200:
-#         return 0.034
-#     elif arg >= 190:
-#         return 0.032
-#     elif arg >= 180:
-#         return 0.032
-#     elif arg >= 170:
-#         return 0.032
-#     elif arg >= 160:
-#         return 0.029
-#     elif arg >= 150:
-#         return 0.029
-#     elif arg >= 140:
-#         return 0.027
-#     elif arg >= 130:
-#         return 0.025
-#     elif arg >= 120:
-#         return 0.024
-#     elif arg >= 110:
-#         return 0.022
-#     elif arg >= 100:
-#         return 0.021
-#     elif arg >= 90:
-#         return 0.018
-#     elif arg >= 80:
-#         return 0.017
-#     elif arg >= 70:
-#         return 0.015
-#     elif arg >= 60:
-#         return 0.014
-#     elif arg >= 50:
-#         return 0.014
-#     elif arg >= 40:
-#         return 0.010
+# 极坐标两点连成线 并给定角度计算距离
+def two_points_into_line(pi_1, r1, pi_2, r2, theta):
+    return r1 * r2 * (np.sin(pi_2 - pi_1)) / (r1 * np.sin(theta - pi_1) - r2 * np.sin(theta - pi_2))
+
+# # 窗口大小获取函数（形参为第一个点距离）
+# def win_size(arg):
+#     arg = int(arg * 10)
+#     if arg >= 26:
+#         return 6
+#     num = [25, 25, 25, 25, 23, 18, 17, 16, 15, 14, 14, 13, 11, 11, 11, 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 7]
+#     return num[arg]
+#
+
+# # 最少点数函数(形参为窗口大小)
+# def min_point_number(arg):
+#     if arg / 3 > 3:
+#         return arg / 3
 #     else:
-#         return 0.005
-
-# 跨越点阈值函数宽松版（形参为第一个点距离）
-def across_dis(arg):
-    arg = arg * 100
-    if arg >= 250:
-        return 0.06
-    elif arg >= 240:
-        return 0.05
-    elif arg >= 230:
-        return 0.05
-    elif arg >= 220:
-        return 0.05
-    elif arg >= 210:
-        return 0.05
-    elif arg >= 200:
-        return 0.05
-    elif arg >= 190:
-        return 0.05
-    elif arg >= 180:
-        return 0.05
-    elif arg >= 170:
-        return 0.05
-    elif arg >= 160:
-        return 0.04
-    elif arg >= 150:
-        return 0.04
-    elif arg >= 140:
-        return 0.04
-    elif arg >= 130:
-        return 0.04
-    elif arg >= 120:
-        return 0.04
-    elif arg >= 110:
-        return 0.04
-    elif arg >= 100:
-        return 0.04
-    elif arg >= 90:
-        return 0.03
-    elif arg >= 80:
-        return 0.03
-    elif arg >= 70:
-        return 0.03
-    elif arg >= 60:
-        return 0.03
-    elif arg >= 50:
-        return 0.03
-    elif arg >= 40:
-        return 0.02
-    else:
-        return 0.02
+#         return 3
+#
+#
+# # 聚类阈值函数宽松版（形参为第一个点距离）
+# def dis_get(arg):
+#     arg = int(arg * 10)
+#     if arg >= 26:
+#         return 0.08
+#     num = [0.03, 0.03, 0.03, 0.03, 0.04, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.06, 0.06, 0.07,
+#            0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07]
+#     return num[arg]
+#
+#

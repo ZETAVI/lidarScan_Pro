@@ -19,16 +19,21 @@ import math
 import time
 import threading
 import src.Method.globalFunc as Fun
+from src.Object import keyPoint
 
 
 class clustering:
     """聚类方法类"""
 
     # 构造函数
-    def __init__(self, dataQueue, objectQueue, showFillterQueue, showObjQueue):
+    def __init__(self, dataQueue, showFillterQueue, showObjQueue, keyPoints, showObjQueue2):
         self.dataQueue = dataQueue
         self.showFilterQueue = showFillterQueue
         self.showObjQueue = showObjQueue
+        # 特征点集
+        self.keyPoints = keyPoints
+        # 结果点集
+        self.showObjQueue2 = showObjQueue2
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
 
@@ -60,17 +65,17 @@ class clustering:
             # print("周期内所有点为:")
             # for point in pendingList:
             # print("角度:", point.angle, "  距离:", point.range)
-
-            startTime = time.time()
             # 开始聚类
             while True:
+                # print("开始聚类")
                 # 初始化窗口大小
                 window = Fun.win_size(pendingList[idx].range)
-                # print("!!!!取点", idx, ",起始点的距离为", pendingList[idx].range)
+                # print("取起始点", idx, ",起始点的距离为", pendingList[idx].range)
                 # print("窗口大小为", window)
 
                 # 截止位置暂停
                 if idx + window >= len(pendingList):
+                    # print("到达周期尾部，停止聚类")
                     break
 
                 # 初始化最少点阈值
@@ -81,9 +86,6 @@ class clustering:
                 # print("初始化r_max阈值为", r_max)
                 # 暂存聚类阈值
                 t_r_max = r_max
-                # 初始化跨越点阈值
-                r_add = Fun.across_dis(pendingList[idx].range)
-                # print("初始化跨越点r_add阈值为", r_add)
 
                 # 初始化
                 prev = pendingList[idx]
@@ -97,27 +99,28 @@ class clustering:
                 for i in range(idx + 1, idx + window - 1):
                     dis = Fun.distance(prev, pendingList[i])
                     # print("prev与pendingList[", i, "]的距离:", prev.range, "===>", pendingList[i].range, "===", dis)
+                    # print("x:",prev.range * math.cos(prev.angle), ",y:",prev.range * math.sin(prev.angle))
                     # print("此时r_max为", r_max)
                     if dis <= r_max:
                         correct_point_list.append(pendingList[i])
                         # print("该点", i, "符合距离阈值,加入聚类集合")
                         # 重置
                         prev = pendingList[i]
-                        # print("该点", i, "符合距离阈值,加入聚类集合")
                         r_max = t_r_max
                         # print("此时重置r_max为", r_max)
                     else:
                         # 跨越点阈值增加  跨越点次数增加
-                        r_max += r_add
+                        r_max += 0.75 * t_r_max
                         flag += 1
                         if flag > 2:
                             idx += 1
-                            # print("跨越点过多")
+                            # print("跨越点过多，取消本次聚类")
                             # print("更新idx开始准备下一轮尝试,idx更新为", idx)
                             break
-                        # print("dis > r_max , 出现较远点,扩大r_max", r_max)
+                        # print("dis > r_max , 出现较远点,扩大r_max，此时r_max为", r_max)
                 # print("!!!!尝试聚类结束,聚类成功点集长度为", len(correct_point_list), "  num_min下限为", num_min)
                 # 判断聚类对象是否符合相应的要求
+                # print("开始判断聚类对象是否符合要求")
                 if len(correct_point_list) >= num_min:
                     if self.judge(correct_point_list):
                         # print("聚类成功")
@@ -131,9 +134,34 @@ class clustering:
                     # print("数目排除")
                     idx += 1
                 # print("更新idx开始准备下一轮尝试,idx更新为", idx)
-            self.objectQueue.put(item=final, block=True, timeout=1)
+
+            # print("本周期聚类目标共有", len(final))
             self.showObjQueue.put(item=final, block=True, timeout=1)
-            # # print("clustering聚类成功有:", self.showObjQueue.qsize())
+
+            # matching转移代码:用于排除不合适的聚类目标
+            objectShow = []
+            for tempObj in final:
+                x, y, middle_index = Fun.transform_matching2(tempObj)
+                if Fun.judege(x, y, middle_index):
+                    # 判断上一帧的特征点中是否有相近特征点 有的话就当场替换，没有就添加
+                    # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
+                    #     continue
+                    # 如果初步符合特征,提取特征点
+                    tempkeypoint = keyPoint(position=tempObj[middle_index])
+
+                    # print("找到符合的特征点")
+                    # print(tempObj[middle_index].angle, tempObj[middle_index].range)
+
+                    # 将聚类对象添加入待显示对象队列
+                    objectShow.append(tempObj)
+
+                    # 存入keyPoints队列等待后续处理
+                    # self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
+                    # print(tempkeypoint)
+
+            # todo 第三步 将当前符合条件的所有聚类目标进行显示
+            self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
+            # print("clustering聚类成功有:", self.showObjQueue.qsize())
 
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]
@@ -142,12 +170,13 @@ class clustering:
     def filter(self, pointsPeriod):
         points = []
         ans = []
-
+        # print(len(pointsPeriod))
         for point in pointsPeriod:
             if point.range > 0.04:
                 points.append(point)
 
         length = len(points)
+        # print(length)
         for i in range(0, length - 1):
             prev = points[i - 1]
             cur = points[i]
@@ -166,15 +195,42 @@ class clustering:
         return ans
 
     # 凹凸检测函数
-    def judge(self, arg):
+    def judge(self, points):
         ran = 1000
         idx = 1000
-        length = len(arg)
+        length = len(points)
+        count = 0
+        pi_1 = points[0].angle
+        r1 = points[0].range
+        pi_2 = points[length - 1].angle
+        r2 = points[length - 1].range
+
+        if pi_1 > pi_2:
+            temp = pi_1
+            pi_1 = pi_2
+            pi_2 = temp
+            temp = r1
+            r1 = r2
+            r2 = temp
+
         for i in range(0, length):
-            if ran >= arg[i].range:
-                ran = arg[i].range
+            disToLine = Fun.two_points_into_line(pi_1, r1, pi_2, r2, points[i].angle)
+            if disToLine < points[i].range:
+                count += 1
+
+            if ran >= points[i].range:
+                ran = points[i].range
                 idx = i
-        if idx == 0 or idx == length - 1:
+
+        if count >= length / 2:
+            # print("超过两点直线的点数过多 ", count, "个大于等于", length, "的一半, 排除")
             return False
         else:
             return True
+        # # print("凹凸检测函数取最低点i：", idx)
+        # if idx == 0 or idx == length - 1:
+        #     # print("最低点为端点，排除")
+        #     return False
+        # else:
+        #     # print("最低点非端点，通过")
+        #     return True

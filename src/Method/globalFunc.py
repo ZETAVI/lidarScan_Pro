@@ -17,6 +17,8 @@ __author__ = 'bobi'
 import math
 from math import sqrt
 
+import numpy as np
+
 
 def judege(x, y, middle_index):
     for i in range(len(x)):

@@ -77,8 +77,8 @@ class scanning:
                 else:
                     print("Failed to get Lidar Data")
                 if self.dataQueue.qsize() < self.MaxL * 3 / 4:
-                    time.sleep(1000)
-                    # time.sleep(0.05)
+                    # time.sleep(10000)
+                    time.sleep(0.05)
                 else:
                     print("Too many points in List")
                     time.sleep(0.2)

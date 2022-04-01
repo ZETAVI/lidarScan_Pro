@@ -27,7 +27,6 @@ class clustering:
     # 构造函数
     def __init__(self, dataQueue, objectQueue, showFillterQueue, showObjQueue):
         self.dataQueue = dataQueue
-        self.objectQueue = objectQueue
         self.showFilterQueue = showFillterQueue
         self.showObjQueue = showObjQueue
         # 启动线程

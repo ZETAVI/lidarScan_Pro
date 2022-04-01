@@ -21,35 +21,38 @@ import numpy as np
 
 
 def judege(x, y, middle_index):
-    for i in range(len(x)):
-        print("坐标为x:", x[i], ",y:", y[i], "\n")
-    tag = False  # 最终判断
+    # for i in range(len(x)):
+    #     print("坐标为x:", x[i], ",y:", y[i], "\n")
+
+    tag = True  # 最终判断
     tag_left = True  # 左边判断
     tag_right = True  # 右边判断
     # 运用扫描窗口内边界点和原点的夹角角度初步排除
-    print("最低点坐标为x:", x[middle_index], ",y:", y[middle_index])
+    # print("最低点坐标为x:", x[middle_index], ",y:", y[middle_index])
     n = len(x)
+
     # todo 判断直线
     if middle_index == 0 or middle_index == n - 1:
         middle = math.floor(n / 2)
         realangle = angle_calculate(x, y, 0, middle, n - 1)
-        if realangle > 155:
-            print("大夹角为:", realangle)
-            print("判断结果为非人腿！\n")
+        # print("大夹角为:", realangle)
+        if realangle > 165:
+            # print("判断结果为非人腿！\n")
             return False
     else:
         realangle = angle_calculate(x, y, 0, middle_index, n - 1)
-        print("大夹角为:", realangle)
+        # print("大夹角为:", realangle)
         if realangle > 155:
-            print("判断结果为非人腿！\n")
+            # print("判断结果为非人腿！\n")
             return False
         # if not (realangle < 145 and realangle > 92) or (realangle < 80):
         # 当大夹角在80到92度之间,还有小于50度的角判定为直角
         # if (realangle < 92 and realangle > 80) or realangle <= 50:
 
         # if realangle < 92 and realangle > 80:
-        #     print("判断结果为非人腿！\n")
+        #     # print("判断结果为非人腿！\n")
         #     return False
+
         #  当大夹角在大于165度为直线
         # if realangle > 165:
         #     return False
@@ -57,36 +60,37 @@ def judege(x, y, middle_index):
         # else:
         # 进一步判断
         if n >= 5:
+            realangle2 = 180
+            realangle3 = 180
             if middle_index != 1:
                 realangle2 = angle_calculate(x, y, 1, middle_index, n - 1)
-            else:
-                realangle2 = angle_calculate(x, y, 1, math.floor((n - 2) / 2), n - 1)
+
             if middle_index != n - 2:
                 realangle3 = angle_calculate(x, y, 0, middle_index, n - 2)
+
+            if realangle2 < 165 or realangle3 < 165:
+                if middle_index > 1:
+                    left_realangle = angle_calculate(x, y, 0, math.floor(middle_index / 2), middle_index)
+                    # print("左中间点坐标为x:", x[math.floor(middle_index / 2)], ",y:", y[math.floor(middle_index / 2)])
+                    # print("左夹角为:", left_realangle)
+                    if left_realangle > 170:
+                        tag_left = False
+                if n - 1 - middle_index > 1:
+                    right_realangle = angle_calculate(x, y, middle_index, math.floor((n - 1 + middle_index) / 2), n - 1)
+                    # print("右中间点坐标为x:", x[math.floor((n - 1 + middle_index) / 2)], ",y:",
+                    #       y[math.floor((n - 1 + middle_index) / 2)])
+                    # print("右夹角为:", right_realangle)
+                    if right_realangle > 170:
+                        tag_right = False
+                # 当且仅当左右两边均像直线的情况下才认定为直角
+                tag = tag_left or tag_right
             else:
-                realangle3 = angle_calculate(x, y, 0, math.floor((n - 2) / 2), n - 2)
-            if realangle2 > 170 or realangle3 > 170:
-                return False;
-            if middle_index > 1:
-                left_realangle = angle_calculate(x, y, 0, math.floor(middle_index / 2), middle_index)
-                print("左中间点坐标为x:", x[math.floor(middle_index / 2)], ",y:", y[math.floor(middle_index / 2)])
-                print("左夹角为:", left_realangle)
-                if left_realangle > 170:
-                    tag_left = False
-            if n - 1 - middle_index > 1:
-                right_realangle = angle_calculate(x, y, middle_index, math.floor((n - 1 + middle_index) / 2), n - 1)
-                print("右中间点坐标为x:", x[math.floor((n - 1 + middle_index) / 2)], ",y:",
-                      y[math.floor((n - 1 + middle_index) / 2)])
-                print("右夹角为:", right_realangle)
-                if right_realangle > 170:
-                    tag_right = False
-            # 当且仅当左右两边均像直线的情况下才认定为直角
-            tag = tag_left or tag_right
+                return False
         '''
         # 添加即时对数据进行拟合并通过拟合得到的二次函数参数进行初步排除
         z1 = np.polyfit(x, y, 2)  # 用2次多项式拟合，可改变多项式阶数；
         p1 = np.poly1d(z1)  # 得到多项式系数，按照阶数从高到低排列
-        #print(p1)  # 显示多项式
+        ## print(p1)  # 显示多项式
         Min = (4 * p1[0] * p1[2] - p1[1]**2) / (4 * p1[0])  #极点的y坐标 用于区分直角
         if(p1[0] > 16 or (p1[2] > 0.09) or Min > 0.0066):#此处有待修正第二个判断条件
             return tag;
@@ -100,10 +104,10 @@ def judege(x, y, middle_index):
         if(res < 2.5*10**-5):
             tag = True
         '''
-        if tag:
-            print("判断结果为人腿！\n")
-        else:
-            print("判断结果为非人腿！\n")
+        # if tag:
+        #     print("判断结果为人腿！\n")
+        # else:
+        #     print("判断结果为非人腿！\n")
     return tag
 
 

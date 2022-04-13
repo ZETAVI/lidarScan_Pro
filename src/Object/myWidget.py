@@ -102,7 +102,7 @@ class MyWidget(pg.GraphicsWindow):
 
     def onNewData3(self):
         data = self.data[2]
-        print("showDataQueue3 size:", data.qsize())
+        # print("showDataQueue3 size:", data.qsize())
         if data.qsize() > 15:
             self.timer3.setInterval(20)
         elif data.qsize() < 10:
@@ -120,11 +120,11 @@ class MyWidget(pg.GraphicsWindow):
 
     def onNewData4(self):
         data = self.data[3]
-        print("showDataQueue4 size:", data.qsize())
+        # print("showDataQueue4 size:", data.qsize())
         if data.qsize() > 15:
-            self.timer4.setInterval(5)
+            self.timer4.setInterval(20)
         elif data.qsize() < 10:
-            self.timer4.setInterval(130)
+            self.timer4.setInterval(100)
         if not data.empty():
             angle = []
             ran = []

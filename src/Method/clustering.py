@@ -162,7 +162,8 @@ class clustering:
             # todo 第三步 将当前符合条件的所有聚类目标进行显示
             self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
             # print("clustering聚类成功有:", self.showObjQueue.qsize())
-
+            self.frames = (self.frames + 1) % 99999999999
+            print(time.time())
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]
 
@@ -172,7 +173,7 @@ class clustering:
         ans = []
         # print(len(pointsPeriod))
         for point in pointsPeriod:
-            if point.range > 0.04:
+            if 0.04 < point.range < 2.6:
                 points.append(point)
 
         length = len(points)
@@ -222,7 +223,7 @@ class clustering:
                 ran = points[i].range
                 idx = i
 
-        if count >= length / 2:
+        if count >= length * 3 / 4:
             # print("超过两点直线的点数过多 ", count, "个大于等于", length, "的一半, 排除")
             return False
         else:

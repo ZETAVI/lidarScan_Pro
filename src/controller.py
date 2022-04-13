@@ -31,8 +31,6 @@ class controller():
         self.showDataQueue = queue.Queue(maxsize=200)
         # 噪点过滤显示队列
         self.showFilterQueue = queue.Queue(maxsize=200)
-        # 对象聚类队列
-        self.objectQueue = queue.Queue(maxsize=200)
         # 对象聚类显示队列
         self.showObjQueue = queue.Queue(maxsize=200)
         # 对象2聚类显示队列
@@ -47,8 +45,8 @@ class controller():
         scanning(dataQueue=self.dataQueue, showDataQueue=self.showDataQueue, flag=self.flag)
         clustering(dataQueue=self.dataQueue, showFillterQueue=self.showFilterQueue,
                    showObjQueue=self.showObjQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2)
-        MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQueue, self.showObjQueue2).start()
         # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
+        MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQueue, self.showObjQueue2).start()
         print("进程启动成功！")
 
     # 退出监听程序

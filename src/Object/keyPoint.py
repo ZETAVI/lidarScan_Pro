@@ -23,8 +23,12 @@ class keyPoint:
 
     def __init__(self, position):
         self.keyPID = None
+        # 极坐标
         self.position = position
-        self.time = None
+        # 运动趋势 记录上一个点
+        self.vector = None
+        # 用来统计帧数变化
+        self.ownFrames = frames
 
     # 为特征点生成唯一的ID
     def generatePID(self):
@@ -41,16 +45,10 @@ class keyPoint:
         # print(reqId)
         self.keyPID = reqId
 
-    # 获取时间戳
-    def setTime(self):
-        tim = time.time() * 100  # 获取Python时间戳
-        tim = math.floor(tim)
-        self.time = tim
-        return tim
-
     # 更新点信息
-    def update(self, newState):
-        self.time = newState.time
+    def update(self, newState, newFrames):
+        # vector 更新为上一帧位置信息
+        self.vector = self.position
         self.position = newState.position
 
 # if __name__ == '__main__':

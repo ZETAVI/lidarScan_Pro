@@ -13,9 +13,9 @@
 """
 __author__ = 'bobi'
 
-import math
 import random
 import time
+import src.Method.globalFunc as Fun
 
 
 class keyPoint:
@@ -51,6 +51,13 @@ class keyPoint:
         self.vector = self.position
         self.position = newState.position
         self.ownFrames = newFrames
+
+    def infoPrint(self):
+        x, y = Fun.transform_clustering(self.position)
+        vx, vy = None, None if self.vector is None else Fun.transform_clustering(self.vector)
+        print("输出keyPoint点信息: ")
+        print("    KID=", self.keyPID, "  ownFrames=", self.ownFrames)
+        print("    position=", x, " ,  ", y, "    vector=", vx, " ,  ", vy)
 
 # if __name__ == '__main__':
 #     while 1:

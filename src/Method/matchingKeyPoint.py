@@ -15,6 +15,6 @@ def matchingKeyPoint(point, keyPoints):
             math.radians(point[0] - keypoint.position[1]))
         # 移动距离阈值
         if distance < 0.1:
-            keypoint.update(point)
+            keypoint.update(point, )
             return True
     return False

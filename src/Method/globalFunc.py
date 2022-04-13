@@ -209,7 +209,7 @@ def win_size(arg):
 def min_point_number(arg):
     # 介于1/3和1/2之间
     if 5 * arg / 12 > 3:
-        return round(5 * arg / 12)
+        return math.floor(5 * arg / 12)
     else:
         return 3
 

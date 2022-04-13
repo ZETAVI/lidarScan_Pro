@@ -46,7 +46,7 @@ class locate_storage:
         # todo 跟踪表超时设置
         # self.timeout=?
         # todo 两点邻域阈值
-        # self.neighbour=?
+        # self.neighbour=0.4
         # 等待空间 需要使用是才创建,使用完毕后清除
         self.waitArea = None
         # 启动定位线程
@@ -178,12 +178,11 @@ class waitingArea:
     #     return tim
 
     # 检测新的点是否能与等待空间中的点组成活动人
-    def checkTimeOut(self, newPoint):
-        # 若无超时 则两个特征点能构成一个活动人 构造活动人 返回新的活动人对象
-        if newPoint.time - self.waitTime <= self.timeout:
+    def checkDistanceOut(self, newPoint):
+        # 若无超距离 则两个特征点能构成一个活动人 构造活动人 返回新的活动人对象
+        if Fun.distance(self.waitPoint, newPoint) < 0.4:
             return activeObj(legs=(self.waitPoint, newPoint))
         else:
             # 若已超距 更新等待空间
             self.waitPoint = newPoint
-            self.waitPoint = self.setTime()
             return None

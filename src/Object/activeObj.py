@@ -31,6 +31,7 @@ class activeObj:
         # 两个特征点的运动信息跟踪
         self.targetTracking = ([], [])
         self.lastUpdateTime = self.getTime()
+        self.tempID = -1
 
     # 为特征点生成唯一的ID
     def generatePID(self):
@@ -52,7 +53,20 @@ class activeObj:
         # 首先判断该点keyPoint属于哪一只脚
         idx = 0 if keyPoint.keyPID == self.legs[0] else 1
         # 再根据idx将特征点记录
-        self.targetTracking[idx].append(keyPoint)
+        if idx != self.tempID:
+            if keyPoint.ownFrames == self.targetTracking[tempID].ownFrames:
+                self.targetTracking[idx].append(keyPoint)
+            else:
+                tempidx = 1 if idx == 0 else 0
+                self.targetTracking[idx].append(None)
+                self.targetTracking[tempidx].append(None)
+                self.targetTracking[idx].append(keyPoint)
+
+        else:
+            tempidx = 1 if idx == 0 else 0
+            self.targetTracking[idx].append(keyPoint)
+            self.targetTracking[tempidx].append(None)
+        self.tempID = idx
         # 更新有效时间
         self.lastUpdateTime = self.getTime()
 

@@ -21,7 +21,7 @@ import time
 class keyPoint:
     """特征点"""
 
-    def __init__(self, position):
+    def __init__(self, position, frames):
         self.keyPID = None
         # 极坐标
         self.position = position
@@ -50,6 +50,7 @@ class keyPoint:
         # vector 更新为上一帧位置信息
         self.vector = self.position
         self.position = newState.position
+        self.ownFrames = newFrames
 
 # if __name__ == '__main__':
 #     while 1:

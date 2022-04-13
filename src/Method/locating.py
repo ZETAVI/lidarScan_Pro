@@ -43,80 +43,97 @@ class locate_storage:
         self.trackList = []
         # 对应字典  关键点对应到活动人ID
         self.point2obj = {}
-        # todo 跟踪表超时设置
-        # self.timeout=?
         # todo 两点邻域阈值
-        # self.neighbour=0.4
+        self.neighbour = 0.4
         # 等待空间 需要使用是才创建,使用完毕后清除
         self.waitArea = None
         # 启动定位线程
         # threading.Thread(target=self.locate())
 
     def locate(self):
-        while self.flag:
+        while True:
+            keyPoint = None
             if not self.keyPoints.empty():
                 # 取新周期的关键点
                 keyPoint = self.keyPoints.get(block=True, timeout=1)
-                # 取出点的最新帧数
-                curFrame = keyPoint.ownFrames
 
-                # 用于缓存所有可能的相邻帧
-                neighbours = []
-                # todo 在跟踪表中利用最邻近法定位
-                for point in self.trackList:
-                    # todo 根据curTime清除跟踪表中过期的点
-                    tempFrame = curFrame
-                    if tempFrame < point.ownFrames:
-                        tempFrame += 9999999
-                    if tempFrame - point.ownFrames > 6:
-                        self.trackList.remove(point)
-                        continue
-                    # todo 还要加上周期帧数判断
-                    if curFrame != point.ownFrames and Fun.distance(point.position,
-                                                                    keyPoint.position) <= self.neighbour:
-                        # 可能为相邻帧的点集
-                        neighbours.append(point)
+            # 有可能去除失败
+            if keyPoint is None:
+                time.sleep(0.05)
+                continue
 
-                # 若在跟踪标表中找不到对应点
-                if len(neighbours) == 0:
-                    # 生成一个唯一的编号
-                    keyPoint.generatePID()
-                    # 更新跟踪表
-                    self.trackList.append(keyPoint)
-                    # 申请存储该特征点
-                    self.store(keyPoint)
+            # 取出点的最新帧数
+            curFrame = keyPoint.ownFrames
+
+            # 用于缓存所有可能的相邻帧
+            neighbours = []
+            # todo 在跟踪表中利用最邻近法定位
+            for point in self.trackList:
+                # todo 根据curTime清除跟踪表中过期的点
+                tempFrame = curFrame
+                print("当前最新点的帧数： ", curFrame)
+                if tempFrame < point.ownFrames:
+                    tempFrame += 9999999
+                if tempFrame - point.ownFrames > 6:
+                    print("点的信息：")
+                    point.infoPrint()
+                    print("超过6帧没更新，该点从跟踪列表中删除")
+                    self.trackList.remove(point)
                     continue
+                # todo 还要加上周期帧数判断
+                if curFrame != point.ownFrames and Fun.distance(point.position,
+                                                                keyPoint.position) <= self.neighbour:
+                    # 可能为相邻帧的点集
+                    print("找到该点在跟踪表中的相近点：")
+                    print("当前帧的：")
+                    keyPoint.infoPrint()
+                    print("跟踪表中的点为：")
+                    point.infoPrint()
+                    neighbours.append(point)
 
-                # 定位到上个周期的最匹配对应点matched
-                matched = None
-                if len(neighbours) > 1:
-                    # 跟踪表中有找到一只以上的对应点
-                    matched = self.movementTrendCHK(neighbours=neighbours, cur=keyPoint)
-                else:
-                    matched = neighbours[0]
+            # 若在跟踪标表中找不到对应点
+            if len(neighbours) == 0:
+                print("该点在跟踪表中无相近点：")
+                # 生成一个唯一的编号
+                keyPoint.generatePID()
+                # 更新跟踪表
+                self.trackList.append(keyPoint)
+                # 申请存储该特征点
+                self.store(keyPoint)
+                continue
 
-                # 判断这个点是否能构成活动人对象,即是否能在字典中找到该点ID对应的活动人ID
-                keyPoint.keyPID = matched.keyPID
-                if self.point2obj.__contains__(keyPoint.keyPID):
-                    curActiveObj = self.point2obj[keyPoint.keyPID]
-                    # todo 加入该活动人对应位置,并自动更新活动人的有效时间
-                    curActiveObj.addANDUpdateTrack(keyPoint=keyPoint)
+            # 定位到上个周期的最匹配对应点matched
+            if len(neighbours) > 1:
+                # 跟踪表中有找到一只以上的对应点
+                matched = self.movementTrendCHK(neighbours=neighbours, cur=keyPoint)
+            else:
+                matched = neighbours[0]
 
-                    # 更新跟踪表
-                    matched.update(keyPoint, curFrame)
+            # 判断这个点是否能构成活动人对象,即是否能在字典中找到该点ID对应的活动人ID
+            keyPoint.keyPID = matched.keyPID
+            if self.point2obj.__contains__(keyPoint.keyPID):
+                curActiveObj = self.point2obj[keyPoint.keyPID]
+                # todo 加入该活动人对应位置,并自动更新活动人的有效时间
+                curActiveObj.addANDUpdateTrack(keyPoint=keyPoint)
 
-                # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
-                else:
-                    # 更新跟踪表
-                    matched.update(keyPoint, curFrame)
-                    # 申请存储
-                    self.store(keyPoint)
+                # 更新跟踪表
+                matched.update(keyPoint, curFrame)
+
+            # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
+            else:
+                # 更新跟踪表
+                matched.update(keyPoint, curFrame)
+                # 申请存储
+                self.store(keyPoint)
 
     # todo 申请存储方法 利用等待空间
     def store(self, curPoint):
+        curPoint.infoPrint()
+        print("该点尝试继续存储")
         # 若等待空间为空 申请一个等待空间存放当前点
         if self.waitArea is None:
             self.waitArea = waitingArea(curPoint)
+
         else:
             # 若等待空间非空 则检测两点是否超时  超时返回空 否则返回活动人对象
             newActiveObj = self.waitArea.checkDistanceOut(curPoint)

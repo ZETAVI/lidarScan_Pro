@@ -36,6 +36,8 @@ class clustering:
         self.showObjQueue2 = showObjQueue2
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
+        # 用来统计帧数变化
+        self.frames = 0
 
     # 启动聚类处理线程
     def cluster(self):
@@ -147,7 +149,7 @@ class clustering:
                     # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
                     #     continue
                     # 如果初步符合特征,提取特征点
-                    tempkeypoint = keyPoint(position=tempObj[middle_index])
+                    tempkeypoint = keyPoint(position=tempObj[middle_index], frames=self.frames)
 
                     # print("找到符合的特征点")
                     # print(tempObj[middle_index].angle, tempObj[middle_index].range)

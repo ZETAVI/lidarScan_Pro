@@ -133,6 +133,7 @@ class locate_storage:
         # 若等待空间为空 申请一个等待空间存放当前点
         if self.waitArea is None:
             self.waitArea = waitingArea(curPoint)
+
         else:
             # 若等待空间非空 则检测两点是否超时  超时返回空 否则返回活动人对象
             newActiveObj = self.waitArea.checkDistanceOut(curPoint)

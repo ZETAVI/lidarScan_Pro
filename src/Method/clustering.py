@@ -164,7 +164,7 @@ class clustering:
             # todo 第三步 将当前符合条件的所有聚类目标进行显示
             self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
             # print("clustering聚类成功有:", self.showObjQueue.qsize())
-            self.frames = (self.frames + 1) % 99999999999
+            self.frames = (self.frames + 1) % 9999999
             print(time.time())
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]

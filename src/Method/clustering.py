@@ -36,6 +36,8 @@ class clustering:
         self.showObjQueue2 = showObjQueue2
         # 启动线程
         threading.Thread(target=self.cluster, ).start()
+        # 用来统计帧数变化
+        self.frames = 0
 
     # 启动聚类处理线程
     def cluster(self):
@@ -147,7 +149,7 @@ class clustering:
                     # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
                     #     continue
                     # 如果初步符合特征,提取特征点
-                    tempkeypoint = keyPoint(position=tempObj[middle_index])
+                    tempkeypoint = keyPoint(position=tempObj[middle_index], frames=self.frames)
 
                     # print("找到符合的特征点")
                     # print(tempObj[middle_index].angle, tempObj[middle_index].range)
@@ -162,7 +164,8 @@ class clustering:
             # todo 第三步 将当前符合条件的所有聚类目标进行显示
             self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
             # print("clustering聚类成功有:", self.showObjQueue.qsize())
-
+            self.frames = (self.frames + 1) % 99999999999
+            print(time.time())
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]
 
@@ -172,7 +175,7 @@ class clustering:
         ans = []
         # print(len(pointsPeriod))
         for point in pointsPeriod:
-            if point.range > 0.04:
+            if 0.04 < point.range < 2.6:
                 points.append(point)
 
         length = len(points)
@@ -222,7 +225,7 @@ class clustering:
                 ran = points[i].range
                 idx = i
 
-        if count >= length / 2:
+        if count >= length * 3 / 4:
             # print("超过两点直线的点数过多 ", count, "个大于等于", length, "的一半, 排除")
             return False
         else:

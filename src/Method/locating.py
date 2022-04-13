@@ -26,15 +26,14 @@ import math
 import queue
 import threading
 import time
-
-from src.Object import keyPoint, activeObj
+import src.Method.globalFunc as Fun
+from src.Object import activeObj
 
 
 class locate_storage:
     """特征点定位与活动人存储"""
 
     def __init__(self, keyPoints, flag, activeObjs):
-        keyPoints = queue.Queue
         # 关键点集合(待处理)
         self.keyPoints = keyPoints
         self.flag = flag
@@ -47,7 +46,7 @@ class locate_storage:
         # todo 跟踪表超时设置
         # self.timeout=?
         # todo 两点邻域阈值
-        # self.neighbour=?
+        # self.neighbour=0.4
         # 等待空间 需要使用是才创建,使用完毕后清除
         self.waitArea = None
         # 启动定位线程
@@ -58,47 +57,59 @@ class locate_storage:
             if not self.keyPoints.empty():
                 # 取新周期的关键点
                 keyPoint = self.keyPoints.get(block=True, timeout=1)
-                # curTime 类型为int 表示时间戳
-                curTime = keyPoint.setTime()
+                # 取出点的最新帧数
+                curFrame = keyPoint.ownFrames
 
-                # todo 根据curTime清除跟踪表中过期的点
-                for point in self.trackList:
-                    if curTime - point.time > self.timeout:
-                        pass
-
-                # 标记是否能在跟踪表中找到对应点
-                alreadyProcess = False
-
+                # 用于缓存所有可能的相邻帧
+                neighbours = []
                 # todo 在跟踪表中利用最邻近法定位
                 for point in self.trackList:
-                    if self.distance(point, keyPoint) <= self.neighbour:
-                        alreadyProcess = True
-                        # 定位到上个周期的对应点
-                        # 判断这个点是否能构成活动人对象,即是否能在字典中找到该点ID对应的活动人ID
-                        keyPoint.keyPID = point.keyPID
-                        if self.point2obj.__contains__(keyPoint.keyPID):
-                            # todo 加入该活动人对应位置,并自动更新活动人的有效时间
-                            activeObj = self.point2obj[keyPoint.keyPID]
-                            activeObj.addANDUpdateTrack(keyPoint=keyPoint)
-
-                            # 更新跟踪表
-                            point.update(keyPoint)
-                            pass
-
-                        # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
-                        else:
-                            # 更新跟踪表
-                            point.update(keyPoint)
-                            # 申请存储
-                            self.store(keyPoint)
+                    # todo 根据curTime清除跟踪表中过期的点
+                    tempFrame = curFrame
+                    if tempFrame < point.ownFrames:
+                        tempFrame += 9999999
+                    if tempFrame - point.ownFrames > 6:
+                        self.trackList.remove(point)
+                        continue
+                    # todo 还要加上周期帧数判断
+                    if curFrame != point.ownFrames and Fun.distance(point.position,
+                                                                    keyPoint.position) <= self.neighbour:
+                        # 可能为相邻帧的点集
+                        neighbours.append(point)
 
                 # 若在跟踪标表中找不到对应点
-                if not alreadyProcess:
+                if len(neighbours) == 0:
                     # 生成一个唯一的编号
                     keyPoint.generatePID()
                     # 更新跟踪表
                     self.trackList.append(keyPoint)
                     # 申请存储该特征点
+                    self.store(keyPoint)
+                    continue
+
+                # 定位到上个周期的最匹配对应点matched
+                matched = None
+                if len(neighbours) > 1:
+                    # 跟踪表中有找到一只以上的对应点
+                    matched = self.movementTrendCHK(neighbours=neighbours, cur=keyPoint)
+                else:
+                    matched = neighbours[0]
+
+                # 判断这个点是否能构成活动人对象,即是否能在字典中找到该点ID对应的活动人ID
+                keyPoint.keyPID = matched.keyPID
+                if self.point2obj.__contains__(keyPoint.keyPID):
+                    curActiveObj = self.point2obj[keyPoint.keyPID]
+                    # todo 加入该活动人对应位置,并自动更新活动人的有效时间
+                    curActiveObj.addANDUpdateTrack(keyPoint=keyPoint)
+
+                    # 更新跟踪表
+                    matched.update(keyPoint, curFrame)
+
+                # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
+                else:
+                    # 更新跟踪表
+                    matched.update(keyPoint, curFrame)
+                    # 申请存储
                     self.store(keyPoint)
 
     # todo 申请存储方法 利用等待空间
@@ -108,16 +119,44 @@ class locate_storage:
             self.waitArea = waitingArea(curPoint)
         else:
             # 若等待空间非空 则检测两点是否超时  超时返回空 否则返回活动人对象
-            activeObj = self.waitArea.checkTimeOut(curPoint)
-            if activeObj is not None:
+            newActiveObj = self.waitArea.checkDistanceOut(curPoint)
+            if newActiveObj is not None:
+                # 添加到活动人队列中
+                self.activeObjs.put(item=newActiveObj, block=True, timeout=1)
                 # 更新两特征点与活动人对应的字典
-                self.point2obj[activeObj.legs[0].keyPID] = activeObj.activeID
-                self.point2obj[activeObj.legs[1].keyPID] = activeObj.activeID
+                self.point2obj[newActiveObj.legs[0].keyPID] = newActiveObj
+                self.point2obj[newActiveObj.legs[1].keyPID] = newActiveObj
 
-    # todo 计算两点的欧拉公式
-    def distance(self, pointA, pointB):
-        dis = 0.0
-        return dis
+    # todo 根据运动趋势匹配最符合的点
+    def movementTrendCHK(self, neighbours, cur):
+        # 记录最短距离
+        minDis = 99999
+        # 记录最小角度
+        minAng = 360
+        temp = None
+        ans = None
+        for point in neighbours:
+            dis = Fun.distance(point.position, cur.position)
+            if dis < minDis:
+                ans = point
+            if point.vector is None:
+                continue
+
+            trand = Fun.distance(point.vector.position, point.position)
+            # trand 记录运动趋势 若运动幅度较小 误差考虑忽略
+            if trand < 0.01:
+                continue
+            else:
+                points = [cur.position, point.vector.position, point.position]
+                x, y = Fun.transform_matching2(points)
+                # 计算角度偏差
+                deviation = Fun.angle_calculate(x, y, 0, 1, 2)
+                # 夹角小于30度
+                if deviation < 30 and deviation < minAng:
+                    minAng = deviation
+                    temp = point
+
+        return ans if temp is None else temp
 
 
 class waitingArea:
@@ -128,23 +167,22 @@ class waitingArea:
         # 记录阻塞特征点
         self.waitPoint = waitPoint
         # 记录等待开始时间
-        self.waitTime = self.setTime()
+        # self.waitTime = self.setTime()
         # 最大的等待时间
-        self.timeout = 1
+        # self.timeout = 1
 
     # 获取时间戳
-    def setTime(self):
-        tim = time.time() * 100  # 获取Python时间戳
-        tim = math.floor(tim)
-        return tim
+    # def setTime(self):
+    #     tim = time.time() * 100  # 获取Python时间戳
+    #     tim = math.floor(tim)
+    #     return tim
 
     # 检测新的点是否能与等待空间中的点组成活动人
-    def checkTimeOut(self, newPoint):
-        # 若无超时 则两个特征点能构成一个活动人 构造活动人 返回新的活动人对象
-        if newPoint.time - self.waitTime <= self.timeout:
+    def checkDistanceOut(self, newPoint):
+        # 若无超距离 则两个特征点能构成一个活动人 构造活动人 返回新的活动人对象
+        if Fun.distance(self.waitPoint, newPoint) < 0.4:
             return activeObj(legs=(self.waitPoint, newPoint))
         else:
-            # 若已超时 更新等待空间
+            # 若已超距 更新等待空间
             self.waitPoint = newPoint
-            self.waitPoint = self.setTime()
             return None

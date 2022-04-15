@@ -31,6 +31,8 @@ class controller():
         self.showDataQueue = queue.Queue(maxsize=200)
         # 噪点过滤显示队列
         self.showFilterQueue = queue.Queue(maxsize=200)
+        # 对象聚类队列
+        # self.objectQueue = queue.Queue(maxsize=200)
         # 对象聚类显示队列
         self.showObjQueue = queue.Queue(maxsize=200)
         # 对象2聚类显示队列
@@ -39,14 +41,18 @@ class controller():
         self.keyPoints = queue.Queue(maxsize=200)
         # 活动人队列
         self.activeObjs = queue.Queue(maxsize=200)
+        # 输出文件名
+        self.file = open("F:\\test\\1.txt", "w+")
 
     # todo  warning:启动线程 一个个线程打开 因为后续线程依赖前面线程的数据 所以需要前面的线程得到验证后再打开下一步线程
     def startThread(self):
         scanning(dataQueue=self.dataQueue, showDataQueue=self.showDataQueue, flag=self.flag)
         clustering(dataQueue=self.dataQueue, showFillterQueue=self.showFilterQueue,
-                   showObjQueue=self.showObjQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2)
-        # locate_storage(keyPoints=self.keyPoints, flag=self.flag, activeObjs=self.activeObjs)
+                   showObjQueue=self.showObjQueue, keyPoints=self.keyPoints, showObjQueue2=self.showObjQueue2,
+                   file=self.file)
+        locate_storage(keyPoints=self.keyPoints, activeObjs=self.activeObjs, file=self.file)
         MyQtWidgets(self.showDataQueue, self.showFilterQueue, self.showObjQueue, self.showObjQueue2).start()
+
         print("进程启动成功！")
 
     # 退出监听程序

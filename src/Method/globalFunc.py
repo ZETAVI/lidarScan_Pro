@@ -42,6 +42,7 @@ def judege(x, y, middle_index):
     else:
         realangle = angle_calculate(x, y, 0, middle_index, n - 1)
         # print("大夹角为:", realangle)
+
         if realangle > 155:
             # print("判断结果为非人腿！\n")
             return False
@@ -189,6 +190,11 @@ def transform_matching2(tempObj):
 def distance(arg1, arg2):
     return sqrt(abs(pow(arg1.range, 2) + pow(arg2.range, 2) - 2 * arg1.range * arg2.range * math.cos(
         arg1.angle - arg2.angle)))
+
+
+# 直角坐标下两点距离(距离，角度)
+def distanceXY(arg1, arg2):
+    return sqrt(pow(arg1[0] - arg2[0], 2) + pow(arg1[1] - arg2[1], 2))
 
 
 # 极坐标转直角坐标

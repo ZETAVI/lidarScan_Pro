@@ -26,7 +26,7 @@ class clustering:
     """聚类方法类"""
 
     # 构造函数
-    def __init__(self, dataQueue, showFillterQueue, showObjQueue, keyPoints, showObjQueue2):
+    def __init__(self, dataQueue, showFillterQueue, showObjQueue, keyPoints, showObjQueue2, file):
         self.dataQueue = dataQueue
         self.showFilterQueue = showFillterQueue
         self.showObjQueue = showObjQueue
@@ -38,6 +38,7 @@ class clustering:
         threading.Thread(target=self.cluster, ).start()
         # 用来统计帧数变化
         self.frames = 0
+        self.file = file
 
     # 启动聚类处理线程
     def cluster(self):
@@ -149,7 +150,7 @@ class clustering:
                     # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
                     #     continue
                     # 如果初步符合特征,提取特征点
-                    tempkeypoint = keyPoint(position=tempObj[middle_index], frames=self.frames)
+                    tempkeypoint = keyPoint(position=self.centroid_point(tempObj), frames=self.frames, file=self.file)
 
                     # print("找到符合的特征点")
                     # print(tempObj[middle_index].angle, tempObj[middle_index].range)
@@ -165,7 +166,6 @@ class clustering:
             self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
             # print("clustering聚类成功有:", self.showObjQueue.qsize())
             self.frames = (self.frames + 1) % 9999999
-            print(time.time())
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]
 
@@ -228,12 +228,20 @@ class clustering:
         if count >= length * 3 / 4:
             # print("超过两点直线的点数过多 ", count, "个大于等于", length, "的一半, 排除")
             return False
-        else:
-            return True
-        # # print("凹凸检测函数取最低点i：", idx)
+            # # print("凹凸检测函数取最低点i：", idx)
+        return True
         # if idx == 0 or idx == length - 1:
         #     # print("最低点为端点，排除")
         #     return False
         # else:
         #     # print("最低点非端点，通过")
         #     return True
+    # 计算点云质心(直角坐标)
+    def centroid_point(self, arg):
+        x = 0
+        y = 0
+        for p in arg:
+            point = Fun.transform_clustering(p)
+            x += point[0]
+            y += point[1]
+        return [x / len(arg), y / len(arg)]

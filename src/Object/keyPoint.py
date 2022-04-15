@@ -20,7 +20,6 @@ import src.Method.globalFunc as Fun
 
 class keyPoint:
     """特征点"""
-
     def __init__(self, position, frames, file):
         self.keyPID = None
         # 直角坐标

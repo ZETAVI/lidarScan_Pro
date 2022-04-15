@@ -236,7 +236,6 @@ class clustering:
         # else:
         #     # print("最低点非端点，通过")
         #     return True
-
     # 计算点云质心(直角坐标)
     def centroid_point(self, arg):
         x = 0

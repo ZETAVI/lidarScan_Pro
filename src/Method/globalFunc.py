@@ -42,7 +42,8 @@ def judege(x, y, middle_index):
     else:
         realangle = angle_calculate(x, y, 0, middle_index, n - 1)
         # print("大夹角为:", realangle)
-        if realangle > 158:
+
+        if realangle > 155:
             # print("判断结果为非人腿！\n")
             return False
         # if not (realangle < 145 and realangle > 92) or (realangle < 80):

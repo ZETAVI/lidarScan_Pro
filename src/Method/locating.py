@@ -60,14 +60,17 @@ class locate_storage:
                 time.sleep(0.05)
                 continue
 
+
             print("开始定位!!!!!!!!!!!!!!!!!!!!!!", file=self.file)
             print("待处理点信息为:", file=self.file)
             keyPoint.infoPrint()
+
             # 取出点的最新帧数
             curFrame = keyPoint.ownFrames
 
             # 用于缓存所有可能的相邻帧
             neighbours = []
+
             print("在跟踪表中搜索可能的相邻点!!!!!!!!!!!!", file=self.file)
             print("跟踪表内共有:", len(self.trackList), "个跟踪信息!!!", file=self.file)
             # 在跟踪表中利用最邻近法定位
@@ -105,6 +108,7 @@ class locate_storage:
                 keyPoint.generatePID()
                 print("生成一个该点的唯一编号，并将其放入跟踪表中", file=self.file)
                 keyPoint.infoPrint()
+
                 # 更新跟踪表
                 self.trackList.append(keyPoint)
                 # 申请存储该特征点
@@ -114,6 +118,7 @@ class locate_storage:
             # 定位到上个周期的最匹配对应点matched
             if len(neighbours) > 1:
                 # 跟踪表中有找到一只以上的对应点
+
                 print("该点在跟踪表中有找到一只以上的对应点，找出最适合的点", file=self.file)
                 matched = self.movementTrendCHK(neighbours=neighbours, cur=keyPoint)
 
@@ -134,7 +139,6 @@ class locate_storage:
                 matched.update(keyPoint, curFrame)
                 print("跟踪表中的对应点的信息更新 ,更新后为", file=self.file)
                 matched.infoPrint()
-
             # 该点在跟踪表中,但是不在活动人表中,说明该点在上个周期还不能构造出一个人
             else:
                 print("该点在跟踪表中,但是不在活动人表，将该点放入等待空间", file=self.file)
@@ -145,9 +149,11 @@ class locate_storage:
                 if self.store(keyPoint) == 1:
                     matched.vector = None
 
+
     # todo 申请存储方法 利用等待空间
     def store(self, curPoint):
         curPoint.infoPrint()
+
         print("该点尝试存储", file=self.file)
         # 若等待空间为空 申请一个等待空间存放当前点
         if self.waitArea is None:

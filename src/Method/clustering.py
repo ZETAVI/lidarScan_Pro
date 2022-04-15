@@ -158,7 +158,7 @@ class clustering:
                     objectShow.append(tempObj)
 
                     # 存入keyPoints队列等待后续处理
-                    # self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
+                    self.keyPoints.put(item=tempkeypoint, block=True, timeout=1)
                     # print(tempkeypoint)
 
             # todo 第三步 将当前符合条件的所有聚类目标进行显示

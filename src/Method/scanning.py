@@ -62,6 +62,7 @@ class scanning:
             scan = ydlidar.LaserScan()
             print("start scanning ! press any key to stop")
             # time.sleep(10)
+            i = 0
             while ret and ydlidar.os_isOk() and self.flag[0]:
                 r = self.laser.doProcessSimple(scan)
                 if r:
@@ -76,8 +77,11 @@ class scanning:
                     self.showDataQueue.put(item=(scan.points,), block=True, timeout=1)
                 else:
                     print("Failed to get Lidar Data")
+
                 if self.dataQueue.qsize() < self.MaxL * 3 / 4:
-                    # time.sleep(10000)
+                    # time.sleep(1000)
+                    print("开始第", i, "个周期")
+                    i += 1
                     time.sleep(0.05)
                 else:
                     print("Too many points in List")

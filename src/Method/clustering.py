@@ -150,7 +150,7 @@ class clustering:
                     # if matchingKeyPoint(tempObj[middle_index], self.keyPoints):
                     #     continue
                     # 如果初步符合特征,提取特征点
-                    tempkeypoint = keyPoint(position=tempObj[middle_index], frames=self.frames)
+                    tempkeypoint = keyPoint(position=self.centroid_point(tempObj), frames=self.frames, file=self.file)
 
                     # print("找到符合的特征点")
                     # print(tempObj[middle_index].angle, tempObj[middle_index].range)
@@ -228,12 +228,21 @@ class clustering:
         if count >= length * 3 / 4:
             # print("超过两点直线的点数过多 ", count, "个大于等于", length, "的一半, 排除")
             return False
-        else:
-            return True
-        # # print("凹凸检测函数取最低点i：", idx)
+            # # print("凹凸检测函数取最低点i：", idx)
+        return True
         # if idx == 0 or idx == length - 1:
         #     # print("最低点为端点，排除")
         #     return False
         # else:
         #     # print("最低点非端点，通过")
         #     return True
+
+    # 计算点云质心(直角坐标)
+    def centroid_point(self, arg):
+        x = 0
+        y = 0
+        for p in arg:
+            point = Fun.transform_clustering(p)
+            x += point[0]
+            y += point[1]
+        return [x / len(arg), y / len(arg)]

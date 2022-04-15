@@ -51,22 +51,46 @@ class activeObj:
     # 该函数用于向该活动人添加跟踪信息
     def addANDUpdateTrack(self, keyPoint):
         # 首先判断该点keyPoint属于哪一只脚
-        idx = 0 if keyPoint.keyPID == self.legs[0] else 1
+        idx = 0 if keyPoint.keyPID == self.legs[0].keyPID else 1
+
+        print("此时idx：", idx, "  上次更新的脚recentID:", self.recentID, file=self.file)
+
+        diffFrames = (keyPoint.ownFrames - self.legs[self.recentID].ownFrames)
+        print("上次更新的周期为", self.legs[self.recentID].ownFrames, "    当前更新点与上一次的更新帧数差为：", diffFrames, file=self.file)
+        tempidx = 1 if idx == 0 else 0
         # 再根据idx将特征点记录
-        if idx != self.tempID:
-            if keyPoint.ownFrames == self.targetTracking[tempID].ownFrames:
-                self.targetTracking[idx].append(keyPoint)
+        if idx != self.recentID:
+            if idx == 1:
+                while diffFrames > 0:
+                    self.targetTracking[idx].append(None)
+                    self.targetTracking[tempidx].append(None)
+                    diffFrames -= 1
+                self.targetTracking[idx].append(keyPoint.position)
             else:
-                tempidx = 1 if idx == 0 else 0
+                diffFrames -= 1
+                while diffFrames > 0:
+                    self.targetTracking[idx].append(None)
+                    self.targetTracking[tempidx].append(None)
+                    diffFrames -= 1
+                self.targetTracking[idx].append(keyPoint.position)
+                pass
+        else:
+            print("缺少一另一只脚的信息，该活动人更新同一只脚的信息(补一个none)", file=self.file)
+            diffFrames -= 1
+            while diffFrames > 0:
                 self.targetTracking[idx].append(None)
                 self.targetTracking[tempidx].append(None)
-                self.targetTracking[idx].append(keyPoint)
-
-        else:
-            tempidx = 1 if idx == 0 else 0
-            self.targetTracking[idx].append(keyPoint)
+                diffFrames -= 1
             self.targetTracking[tempidx].append(None)
-        self.tempID = idx
+            self.targetTracking[idx].append(keyPoint.position)
+
+        self.recentID = idx
+        print("更新结束tempID更新为:", self.recentID, file=self.file)
+        print("targetTracking的内容", file=self.file)
+        print("此时运动信息[0]为", self.targetTracking[0], file=self.file)
+        print("此时运动信息[1]为", self.targetTracking[1], file=self.file)
+        self.legs[idx].ownFrames = keyPoint.ownFrames
+
         # 更新有效时间
         self.lastUpdateTime = self.getTime()
 

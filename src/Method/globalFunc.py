@@ -131,6 +131,7 @@ def angle_calculate(x, y, left, middle_index, right):
     # print("a=",a)
     # print("c=",c)
     pos = (a2 + c2 - b2) / (2 * a * c)  # 求出余弦值
+    # print(pos)
     angle = math.acos(pos)  # 余弦值装换为弧度值
     realangle = math.degrees(angle)  # 弧度值转换为角度值
 

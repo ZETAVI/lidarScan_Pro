@@ -31,6 +31,8 @@ class controller():
         self.showDataQueue = queue.Queue(maxsize=200)
         # 噪点过滤显示队列
         self.showFilterQueue = queue.Queue(maxsize=200)
+        # 对象聚类队列
+        # self.objectQueue = queue.Queue(maxsize=200)
         # 对象聚类显示队列
         self.showObjQueue = queue.Queue(maxsize=200)
         # 对象2聚类显示队列

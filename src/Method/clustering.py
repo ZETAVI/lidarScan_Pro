@@ -26,7 +26,7 @@ class clustering:
     """聚类方法类"""
 
     # 构造函数
-    def __init__(self, dataQueue, showFillterQueue, showObjQueue, keyPoints, showObjQueue2):
+    def __init__(self, dataQueue, showFillterQueue, showObjQueue, keyPoints, showObjQueue2, file):
         self.dataQueue = dataQueue
         self.showFilterQueue = showFillterQueue
         self.showObjQueue = showObjQueue
@@ -38,6 +38,7 @@ class clustering:
         threading.Thread(target=self.cluster, ).start()
         # 用来统计帧数变化
         self.frames = 0
+        self.file = file
 
     # 启动聚类处理线程
     def cluster(self):
@@ -165,7 +166,6 @@ class clustering:
             self.showObjQueue2.put(item=objectShow, block=True, timeout=1)
             # print("clustering聚类成功有:", self.showObjQueue.qsize())
             self.frames = (self.frames + 1) % 9999999
-            print(time.time())
             # 当一个聚类周期处理结束后  去除处理完
             pendingList = pendingList[idx:]
 

@@ -23,15 +23,16 @@ import time
 class activeObj:
     """活动人对象"""
 
-    def __init__(self, legs):
+    def __init__(self, legs, file):
         self.activeID = self.generatePID()
-        # 记录构成人的两个腿部特征点keyPID
-        # 其类型为元组
+        # 记录构成人的两个腿部特征点对象
+        # 其类型为列表
         self.legs = legs
         # 两个特征点的运动信息跟踪
-        self.targetTracking = ([], [])
+        self.targetTracking = ([legs[0].position], [legs[1].position])
         self.lastUpdateTime = self.getTime()
-        self.tempID = -1
+        self.recentID = 1
+        self.file = file
 
     # 为特征点生成唯一的ID
     def generatePID(self):
@@ -50,6 +51,9 @@ class activeObj:
 
     # 该函数用于向该活动人添加跟踪信息
     def addANDUpdateTrack(self, keyPoint):
+        print("运动信息存储,当前活动人为:", self.activeID, file=self.file)
+        print("原来运动信息[0]为", self.targetTracking[0], file=self.file)
+        print("原来运动信息[1]为", self.targetTracking[1], file=self.file)
         # 首先判断该点keyPoint属于哪一只脚
         idx = 0 if keyPoint.keyPID == self.legs[0].keyPID else 1
 

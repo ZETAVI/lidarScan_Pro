@@ -21,14 +21,15 @@ import src.Method.globalFunc as Fun
 class keyPoint:
     """特征点"""
 
-    def __init__(self, position, frames):
+    def __init__(self, position, frames, file):
         self.keyPID = None
-        # 极坐标
+        # 直角坐标
         self.position = position
         # 运动趋势 记录上一个点
         self.vector = None
         # 用来统计帧数变化
         self.ownFrames = frames
+        self.file = file
 
     # 为特征点生成唯一的ID
     def generatePID(self):
@@ -51,13 +52,16 @@ class keyPoint:
         self.vector = self.position
         self.position = newState.position
         self.ownFrames = newFrames
+        print("点集信息更新后为", file=self.file)
+        self.infoPrint()
 
     def infoPrint(self):
-        x, y = Fun.transform_clustering(self.position)
-        vx, vy = None, None if self.vector is None else Fun.transform_clustering(self.vector)
-        print("输出keyPoint点信息: ")
-        print("    KID=", self.keyPID, "  ownFrames=", self.ownFrames)
-        print("    position=", x, " ,  ", y, "    vector=", vx, " ,  ", vy)
+        print("输出点的信息: ", file=self.file)
+        print("    KID=", self.keyPID, "  ownFrames=", self.ownFrames, file=self.file)
+
+        print("    position=", self.position[0], " ,  ", self.position[1], "    vector=",
+              None if self.vector is None else self.vector[0], " ,  ",
+              None if self.vector is None else self.vector[1], file=self.file)
 
 # if __name__ == '__main__':
 #     while 1:
